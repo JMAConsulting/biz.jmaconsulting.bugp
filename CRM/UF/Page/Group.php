@@ -435,8 +435,6 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
     }
 
     $groupTypeParts = explode(CRM_Core_DAO::VALUE_SEPARATOR, $groupType);
-    CRM_Core_Error::debug( '$groupTypeParts', $groupTypeParts );
-    exit;
     foreach (explode(',', $groupTypeParts[0]) as $type) {
       $returnGroupTypes[$type] = $type;
     }
