@@ -120,8 +120,6 @@ class CRM_Grant_Form_Task extends CRM_Core_Form {
     $cacheKey = "civicrm search {$qfKey}";
 
     $url = CRM_Utils_System::url('civicrm/grant/' . $fragment, $urlParams);
-    CRM_Core_Error::debug( '$url', $url );
-    exit;
     $session = CRM_Core_Session::singleton();
     $session->replaceUserContext($url);
 

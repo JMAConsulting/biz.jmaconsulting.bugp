@@ -3065,8 +3065,6 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
    */
   static function updateGroupTypes($gId, $groupTypes = array(
     )) {
-      CRM_Core_Error::debug( '$groupTypes', $groupTypes );
-      exit;
     if (!is_array($groupTypes) || !$gId) {
       return FALSE;
     }
