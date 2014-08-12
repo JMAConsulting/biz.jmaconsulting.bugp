@@ -3066,9 +3066,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
   static function updateGroupTypes($gId, $groupTypes = array(
     )) {
     if (!is_array($groupTypes) || !$gId) {
-      return FALSE;
     }
-
     // If empty group types set group_type as 'null'
     if (empty($groupTypes)) {
       return CRM_Core_DAO::setFieldValue('CRM_Core_DAO_UFGroup', $gId, 'group_type', 'null');
