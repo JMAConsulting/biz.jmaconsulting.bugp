@@ -96,7 +96,9 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    */
   function buildQuickForm() {
     $ufGroupId = $this->get('ufGroupId');
-
+    $this->_contactIds =& CRM_Core_DAO::getContactIDsFromComponent($this->_grantIds,
+      'civicrm_grant' 
+    );
     if (!$ufGroupId) {
       CRM_Core_Error::fatal('ufGroupId is missing');
     }

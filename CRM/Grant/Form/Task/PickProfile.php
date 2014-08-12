@@ -120,7 +120,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
       CRM_Utils_System::redirect($this->_userContext);
     }
     $ufGroupElement = $this->add('select', 'uf_group_id', ts('Select Profile'), array('' => ts('- select profile -')) + $profiles, TRUE);
-
+    $this->assign('totalSelectedContacts', count($this->_grantIds));
     $this->addDefaultButtons(ts('Continue >>'));
   }
 
