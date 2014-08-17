@@ -179,8 +179,6 @@ Group By  componentId";
         elseif ($customFieldId = CRM_Core_BAO_CustomField::getKeyID($name)) {
           //fix for custom fields
           $customFields = CRM_Core_BAO_CustomField::getFields(CRM_Utils_Array::value('contact_type', $details));
-          CRM_Core_Error::debug( '$customFields', $customFields );
-          exit;
 
           switch ($customFields[$customFieldId]['html_type']) {
           case 'Multi-Select State/Province':
