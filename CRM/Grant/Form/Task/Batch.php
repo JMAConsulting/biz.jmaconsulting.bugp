@@ -149,6 +149,11 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         else {
           // handle non custom fields
           CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
+          
+          if (in_array($name, array(
+            'amount_total', 'grant_amount_requested', 'amount_granted'))) {
+            $this->addRule("field[{$grantId}][{$name}]", ts('Please enter a valid amount.'), 'money');
+          }
         }
       }
     }
@@ -217,7 +222,20 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
             $value[$val] = CRM_Utils_Date::processDate($value[$val]);
           }
         }
-
+        
+        if (!empty($value['grant_money_transfer_date'])) {
+          $value['money_transfer_date'] = $value['grant_money_transfer_date'];   
+          unset($value['grant_money_transfer_date']);
+        }
+        if (!empty($value['grant_amount_requested'])) {
+          $value['amount_requested'] = $value['grant_amount_requested'];   
+          unset($value['grant_amount_requested']);
+        }
+        if (!empty($value['grant_application_received_date'])) {
+          $value['application_received_date'] = $value['grant_application_received_date'];   
+          unset($value['grant_application_received_date']);
+        }
+        
         $grant = CRM_Grant_BAO_Grant::add($value, $ids);
         
         CRM_Contact_BAO_Contact::createProfileContact($value, $this->_fields, $this->_contactDetails[$key]['contact_id']);
