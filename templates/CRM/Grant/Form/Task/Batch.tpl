@@ -23,77 +23,45 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-<div class="batch-update crm-form-block crm-grant-task-batch-form-block">
-  <div id="help">
-  {ts}Update field values for each grant as needed. Click <strong>Update Grants</strong> below to save all your changes. To set a field to the same value for ALL rows, enter that value for the first Grant and then click the <strong>Copy icon</strong> (next to the column title).{/ts}
-  </div>
-  <table class="crm-copy-fields">
+<div class="batch-update form-item">
+<fieldset>
+<div id="help">
+    {ts}Update field values for each Grant as needed. Click <strong>Update Grant(s)</strong> below to save all your changes. To set a field to the same value for ALL rows, enter that value for the first grant and then click the <strong>Copy icon</strong> (next to the column title).{/ts}
+</div>
+    <legend>{$profileTitle}</legend>
+    <table class="crm-copy-fields">
     <thead class="sticky">
-    <tr class="columnheader">
-      <td>{ts}Name{/ts}</td>
-    {foreach from=$fields item=field key=fieldName}
-      {if $field.skipDisplay}
-        {continue}
-      {/if}
-      <td><img  src="{$config->resourceBase}i/copy.png" alt="{ts 1=$field.title}Click to copy %1 from row one to all rows.{/ts}" fname="{$field.name}" class="action-icon" title="{ts}Click here to copy the value in row one to ALL rows.{/ts}" />{$field.title}</td>
-    {/foreach}
-    </tr>
-    </thead>
-  {foreach from=$componentIds item=gid}
-  <tr class="{cycle values="odd-row,even-row"}" entity_id="{$gid}">
-    <td>{$sortName.$gid}</td>
-    {foreach from=$fields item=field key=fieldName}
-      {if $field.skipDisplay}
-        {continue}
-      {/if}
-      {assign var=n value=$field.name}
-      {if $field.options_per_line}
-        <td class="compressed">
-          {assign var="count" value="1"}
-          {strip}
-            <table class="form-layout-compressed">
-            <tr>
-            {* sort by fails for option per line. Added a variable to iterate through the element array*}
-              {assign var="index" value="1"}
-              {foreach name=optionOuter key=optionKey item=optionItem from=$form.field.$gid.$n}
-                {if $index < 10}
-                  {assign var="index" value=`$index+1`}
+            <tr class="columnheader">
+             {foreach from=$readOnlyFields item=fTitle key=fName}
+              <th>{$fTitle}</th>
+            {/foreach}
+
+             {foreach from=$fields item=field key=fieldName}
+                <td><img  src="{$config->resourceBase}i/copy.png" alt="{ts 1=$field.title}Click to copy %1 from row one to all rows.{/ts}" fname="{$field.name}" class="action-icon" title="{ts}Click here to copy the value in row one to ALL rows.{/ts}" />{$field.title}</td>
+             {/foreach}
+            </tr>
+          </thead>
+            {foreach from=$componentIds item=cid}
+             <tr class="{cycle values="odd-row,even-row"}" entity_id="{$cid}">
+        {foreach from=$readOnlyFields item=fTitle key=fName}
+           <td>{$contactDetails.$cid.$fName}</td>
+        {/foreach}
+
+              {foreach from=$fields item=field key=fieldName}
+                {assign var=n value=$field.name}
+                {if ( $fields.$n.data_type eq 'Date') or ( $n eq 'thankyou_date' ) or ( $n eq 'cancel_date' ) or ( $n eq 'receipt_date' ) or ( $n eq 'receive_date' )}
+                   <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$cid batchUpdate=1}</td>
                 {else}
-                  <td class="labels font-light">{$form.field.$gid.$n.$optionKey.html}</td>
-                  {if $count == $field.options_per_line}
-                  </tr>
-                  <tr>
-                    {assign var="count" value="1"}
-                    {else}
-                    {assign var="count" value=`$count+1`}
-                  {/if}
+                   <td class="compressed">{$form.field.$cid.$n.html}</td>
                 {/if}
               {/foreach}
-            </tr>
-            </table>
-          {/strip}
-        </td>
-      {elseif ( $fields.$n.data_type eq 'Date') or ( $n eq 'birth_date' ) or ( $n eq 'deceased_date' ) }
-        <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$gid batchUpdate=1}</td>
-      {elseif $n|substr:0:5 eq 'phone'}
-        <td class="compressed">
-          {assign var="phone_ext_field" value=$n|replace:'phone':'phone_ext'}
-          {$form.field.$gid.$n.html}
-          {if $form.field.$gid.$phone_ext_field.html}
-            &nbsp;{$form.field.$gid.$phone_ext_field.html}
-          {/if}
-        </td>
-      {else}
-        <td class="compressed">{$form.field.$gid.$n.html}</td>
-      {/if}
-    {/foreach}
-  {/foreach}
-  </tr>
-  </table>
-{if $fields}{$form._qf_BatchUpdateProfile_refresh.html}{/if} &nbsp;<div class="crm-submit-buttons">{$form.buttons.html}</div>
-
+             </tr>
+            {/foreach}
+           </tr>
+         </table>
+         <div class="crm-submit-buttons">{if $fields}{$form._qf_Batch_refresh.html}{/if} &nbsp; {$form.buttons.html}</div>
+        </fieldset>
 </div>
 
 {*include batch copy js js file*}
 {include file="CRM/common/batchCopy.tpl"}
-

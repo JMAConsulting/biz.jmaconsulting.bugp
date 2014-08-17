@@ -1977,7 +1977,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
       $profileType = CRM_Core_BAO_UFField::getProfileType($gId, TRUE, FALSE, TRUE);
 
       if (empty($profileType) || in_array($profileType, array(
-        'Contact', 'Contribution', 'Participant', 'Membership'))) {
+        'Contact', 'Contribution', 'Participant', 'Membership', 'Grant'))) {
         $profileType = 'Individual';
       }
       if (CRM_Contact_BAO_ContactType::isaSubType($profileType)) {
@@ -2068,7 +2068,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
       }
     }
     elseif (in_array($fieldName, array(
-      'receive_date', 'receipt_date', 'thankyou_date', 'cancel_date'))) {
+                                       'receive_date', 'receipt_date', 'thankyou_date', 'cancel_date', 'decision_date'))) {
       $form->addDateTime($name, $title, $required, array('formatType' => 'activityDateTime'));
     }
     elseif ($fieldName == 'send_receipt') {
@@ -2173,6 +2173,12 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
       $form->add('select', $name, $title,
         array(
           '' => ts('- select -')) + CRM_Core_PseudoConstant::worldRegion(), $required
+      );
+    }
+    elseif ($fieldName == 'grant_type_id') {
+      $form->add('select', $name, $title,
+        array(
+          '' => ts('- select -')) + CRM_Core_OptionGroup::values('grant_type'), $required
       );
     }
     elseif ($fieldName == 'signature_html') {
