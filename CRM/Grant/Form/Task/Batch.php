@@ -34,7 +34,7 @@
  */
 
 /**
- * This class provides the functionality for batch profile update
+ * This class provides the functionality for batch profile update for grants
  */
 class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
 
@@ -44,12 +44,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    * @var string
    */
   protected $_title;
-
-  /**
-   * maximum contacts that should be allowed to update
-   *
-   */
-  protected $_maxGrants = 100;
 
   /**
    * maximum profile fields that will be displayed
@@ -64,9 +58,16 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
   protected $_userContext;
 
   /**
-   * when not to reset sort_name
+   * maximum contacts that should be allowed to update
+   *
    */
-  protected $_preserveDefault = TRUE;
+  protected $_maxGrants = 100;
+
+  /**
+   * contact details
+   *
+   */
+  protected $_contactDetails;
 
   /**
    * build all the data structures needed to build the form
@@ -79,21 +80,9 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
      * initialize the task and row fields
      */
     parent::preProcess();
-    
-    $this->_contactIds =& CRM_Core_DAO::getContactIDsFromComponent($this->_grantIds,
-      'civicrm_grant' 
-    );
-    
-    $ufGroupId = $this->get('ufGroupId');
-    
-    if (!$ufGroupId) {
-      CRM_Core_Error::fatal('ufGroupId is missing');
-    }
-    
-    $this->_fields = CRM_Core_BAO_UFGroup::getFields($ufGroupId, FALSE, CRM_Core_Action::VIEW);
-    
-    $this->_title = ts('Batch Update') . ' - ' . CRM_Core_BAO_UFGroup::getTitle($ufGroupId);
-    CRM_Utils_System::setTitle($this->_title);
+    $this->_contactDetails = CRM_Mrg_BAO_Mrg::contactDetails($this->_grantIds);
+    $this->assign('contactDetails', $this->_contactDetails);
+    $this->assign('readOnlyFields', array('sort_name' => ts('Name')));
   }
 
   /**
@@ -104,6 +93,17 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    * @return void
    */
   function buildQuickForm() {
+    $ufGroupId = $this->get('ufGroupId');
+
+    if (!$ufGroupId) {
+      CRM_Core_Error::fatal('ufGroupId is missing');
+    }
+    $this->_title = ts('Batch Update for Grant(s)') . ' - ' . CRM_Core_BAO_UFGroup::getTitle($ufGroupId);
+    CRM_Utils_System::setTitle($this->_title);
+    
+    $this->_fields = array();
+    $this->_fields = CRM_Core_BAO_UFGroup::getFields($ufGroupId, FALSE, CRM_Core_Action::VIEW);
+
     // remove file type field and then limit fields
     $suppressFields = FALSE;
     $removehtmlTypes = array('File', 'Autocomplete-Select');
@@ -114,54 +114,55 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         $suppressFields = TRUE;
         unset($this->_fields[$name]);
       }
-    }
-    
-    $this->assign('profileTitle', $this->_title);
-    $this->assign('componentIds', $this->_contactIds);
 
-    // if below fields are missing we should not reset sort name / display name
-    // CRM-6794
-    $preserveDefaultsArray = array(
-      'first_name', 'last_name', 'middle_name',
-      'organization_name', 'prefix_id', 'suffix_id',
-      'household_name',
-    );
-
-    $stateCountryMap = array();
-
-    foreach ($this->_contactIds as $contactId) {
-      $profileFields = $this->_fields;
-      CRM_Core_BAO_Address::checkContactSharedAddressFields($profileFields, $contactId);
-      foreach ($profileFields as $name => $field) {
-
-        // Link state to country, county to state per location per contact
-        list($prefixName, $index) = CRM_Utils_System::explode('-', $name, 2);
-        if ($prefixName == 'state_province' || $prefixName == 'country' || $prefixName == 'county') {
-          $stateCountryMap["$index-$contactId"][$prefixName] = "field_{$contactId}_{$field['name']}";
-          $this->_stateCountryCountyFields["$index-$contactId"][$prefixName] = "field[{$contactId}][{$field['name']}]";
-        }
-
-        CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $contactId);
-
-        if (in_array($field['name'], $preserveDefaultsArray)) {
-          $this->_preserveDefault = FALSE;
-        }
+      //fix to reduce size as we are using this field in grid
+      if (is_array($field['attributes']) && $this->_fields[$name]['attributes']['size'] > 19) {
+        //shrink class to "form-text-medium"
+        $this->_fields[$name]['attributes']['size'] = 19;
       }
     }
 
-    CRM_Core_BAO_Address::addStateCountryMap($stateCountryMap);
+    $this->_fields = array_slice($this->_fields, 0, $this->_maxFields);
+
+    $this->assign('profileTitle', $this->_title);
+    $this->assign('componentIds', $this->_grantIds);
+
+    //fix for CRM-2752
+    $customFields = CRM_Core_BAO_CustomField::getFields('Grant');
+    foreach ($this->_grantIds as $grantId) {
+      $typeId = CRM_Core_DAO::getFieldValue("CRM_Grant_DAO_Grant", $grantId, 'grant_type_id');
+      foreach ($this->_fields as $name => $field) {
+        if ($customFieldID = CRM_Core_BAO_CustomField::getKeyID($name)) {
+          $customValue = CRM_Utils_Array::value($customFieldID, $customFields);
+          if (!empty($customValue['extends_entity_column_value'])) {
+            $entityColumnValue = explode(CRM_Core_DAO::VALUE_SEPARATOR,
+              $customValue['extends_entity_column_value']
+            );
+          }
+
+          if (!empty($entityColumnValue[$typeId]) ||
+            CRM_Utils_System::isNull($entityColumnValue[$typeId])
+          ) {
+            CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
+          }
+        }
+        else {
+          // handle non custom fields
+          CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
+        }
+      }
+    }
 
     $this->assign('fields', $this->_fields);
 
     // don't set the status message when form is submitted.
     $buttonName = $this->controller->getButtonName('submit');
 
-    if ($suppressFields && $buttonName != '_qf_BatchUpdateProfile_next') {
-      CRM_Core_Session::setStatus(ts("File or Autocomplete Select type field(s) in the selected profile are not supported for Batch Update and have been excluded."), ts('Some Fields Excluded'), 'info');
+    if ($suppressFields && $buttonName != '_qf_Batch_next') {
+      CRM_Core_Session::setStatus(ts("FILE or Autocomplete Select type field(s) in the selected profile are not supported for Batch Update and have been excluded."), ts('Unsupported Field Type'), 'error');
     }
 
     $this->addDefaultButtons(ts('Update Grant(s)'));
-    $this->addFormRule(array('CRM_Grant_Form_Task_Batch', 'formRule'));
   }
 
   /**
@@ -176,53 +177,13 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
       return;
     }
 
-    $defaults = $sortName = array();
-    foreach ($this->_contactIds as $contactId) {
-      $details[$contactId] = array();
-
-      //build sortname
-      $sortName[$contactId] = CRM_Core_DAO::getFieldValue('CRM_Contact_DAO_Contact',
-        $contactId,
-        'sort_name'
-      );
-
-      CRM_Core_BAO_UFGroup::setProfileDefaults($contactId, $this->_fields, $defaults, FALSE);
+    $defaults = array();
+    foreach ($this->_grantIds as $grantId) {
+      CRM_Core_BAO_UFGroup::setProfileDefaults(NULL, $this->_fields, $defaults, FALSE, $grantId, 'Grant');
+      CRM_Mrg_BAO_Mrg::setProfileDefaults($this->_contactDetails[$grantId]['contact_id'], $this->_fields, $defaults, $grantId);
     }
-
-    $this->assign('sortName', $sortName);
-
-    // now fix all state country selectors
-    CRM_Core_BAO_Address::fixAllStateSelects($this, $defaults, $this->_stateCountryCountyFields);
 
     return $defaults;
-  }
-
-  /**
-   * global form rule
-   *
-   * @param array $fields  the input form values
-   *
-   * @return true if no errors, else array of errors
-   * @access public
-   * @static
-   */
-  static function formRule($fields) {
-    $errors = array();
-    $externalIdentifiers = array();
-    foreach ($fields['field'] as $componentId => $field) {
-      foreach ($field as $fieldName => $fieldValue) {
-        if ($fieldName == 'external_identifier') {
-          if (in_array($fieldValue, $externalIdentifiers)) {
-            $errors["field[$componentId][external_identifier]"] = ts('Duplicate value for External Identifier.');
-          }
-          else {
-            $externalIdentifiers[$componentId] = $fieldValue;
-          }
-        }
-      }
-    }
-
-    return $errors;
   }
 
   /**
@@ -234,38 +195,44 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    */
   public function postProcess() {
     $params = $this->exportValues();
+    $dates = array(
+      'application_received_date',
+      'decision_date',
+      'money_transfer_date',
+      'grant_due_date',
+    );
+    if (isset($params['field'])) {
+      foreach ($params['field'] as $key => $value) {
 
-    $ufGroupId = $this->get('ufGroupId');
-    $notify = NULL;
-    $inValidSubtypeCnt = 0;
-    //send profile notification email if 'notify' field is set
-    $notify = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_UFGroup', $ufGroupId, 'notify');
-    foreach ($params['field'] as $key => $value) {
+        $value['custom'] = CRM_Core_BAO_CustomField::postProcess($value,
+          CRM_Core_DAO::$_nullObject,
+          $key,
+          'Grant'
+        );
 
-      //CRM-5521
-      //validate subtype before updating
-      if (!empty($value['contact_sub_type']) && !CRM_Contact_BAO_ContactType::isAllowEdit($key)) {
-        unset($value['contact_sub_type']);
-        $inValidSubtypeCnt++;
+        $ids['grant_id'] = $key;
+        //TODO: need to QA date fields for grants
+        foreach ($dates as $val) {
+          if (isset($value[$val])) {
+            $value[$val] = CRM_Utils_Date::processDate($value[$val]);
+          }
+        }
+
+        $grant = CRM_Grant_BAO_Grant::add($value, $ids);
+        
+        CRM_Contact_BAO_Contact::createProfileContact($value, $this->_fields, $this->_contactDetails[$key]['contact_id']);
+        // add custom field values
+        if (!empty($value['custom']) &&
+          is_array($value['custom'])
+        ) {
+          CRM_Core_BAO_CustomValueTable::store($value['custom'], 'civicrm_grant', $grant->id);
+        }
       }
-
-      $value['preserveDBName'] = $this->_preserveDefault;
-
-      //parse street address, CRM-7768
-      CRM_Contact_Form_Task_Batch::parseStreetAddress($value, $this);
-
-      CRM_Contact_BAO_Contact::createProfileContact($value, $this->_fields, $key, NULL, $ufGroupId);
-      if ($notify) {
-        $values = CRM_Core_BAO_UFGroup::checkFieldsEmptyValues($ufGroupId, $key, NULL);
-        CRM_Core_BAO_UFGroup::commonSendMail($key, $values);
-      }
+      CRM_Core_Session::setStatus(ts("Your updates have been saved."), ts('Saved'), 'success');
     }
-
-    CRM_Core_Session::setStatus('', ts("Updates Saved"), 'success');
-    if ($inValidSubtypeCnt) {
-      CRM_Core_Session::setStatus(ts('Contact SubType field of 1 contact has not been updated.', array('plural' => 'Contact SubType field of %count contacts has not been updated.', 'count' => $inValidSubtypeCnt)), ts('Invalid Subtype'));
+    else {
+      CRM_Core_Session::setStatus(ts("No updates have been saved."), ts('Not Saved'), 'alert');
     }
   }
-  //end of function
 }
 
