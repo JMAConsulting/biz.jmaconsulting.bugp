@@ -108,15 +108,13 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     }
 
     //add Contact type profiles
-    $this->_grantTypes[] = 'Grant';
-    $this->_grantTypes[] = 'Contact';
-    $this->_grantTypes[] = 'Individual';
+    $this->_grantTypes = array_merge($this->_grantTypes, array('Grant', 'Contact', 'Individual'));
 
     $profiles = CRM_Core_BAO_UFGroup::getProfiles($this->_grantTypes);
 
     if (empty($profiles)) {
-      $types = implode(' ' . ts('or') . ' ', $this->_contactTypes);
-      CRM_Core_Session::setStatus(ts("The contact type selected for Batch Update does not have a corresponding profile. Please set up a profile for %1s and try again.", array(1 => $types)), ts('No Profile Available'), 'error');
+      $types = implode(' ' . ts('or') . ' ', $this->_grantTypes);
+      CRM_Core_Session::setStatus(ts("The grant selected for Batch Update does not have a corresponding profile. Please set up a profile for %1s and try again.", array(1 => $types)), ts('No Profile Available'), 'error');
       CRM_Utils_System::redirect($this->_userContext);
     }
     $ufGroupElement = $this->add('select', 'uf_group_id', ts('Select Profile'), array('' => ts('- select profile -')) + $profiles, TRUE);
@@ -145,6 +143,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    * @access public
    */
   static function formRule($fields) {
+    //TODO: check if we need this form rule
     if (CRM_Core_BAO_UFField::checkProfileType($fields['uf_group_id'])) {
       $errorMsg['uf_group_id'] = "You cannot select mix profile for batch update.";
     }
@@ -152,7 +151,6 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     if (!empty($errorMsg)) {
       //  return $errorMsg;
     }
-
     return TRUE;
   }
 
@@ -167,10 +165,8 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     $params = $this->exportValues();
 
     $this->set('ufGroupId', $params['uf_group_id']);
-
     // also reset the batch page so it gets new values from the db
     $this->controller->resetPage('Batch');
   }
-  //end of function
 }
 

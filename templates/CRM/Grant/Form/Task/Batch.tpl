@@ -23,9 +23,9 @@
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
 *}
-<div class="batch-update crm-form-block crm-contact-task-batch-form-block">
+<div class="batch-update crm-form-block crm-grant-task-batch-form-block">
   <div id="help">
-  {ts}Update field values for each contact as needed. Click <strong>Update Contacts</strong> below to save all your changes. To set a field to the same value for ALL rows, enter that value for the first contact and then click the <strong>Copy icon</strong> (next to the column title).{/ts}
+  {ts}Update field values for each grant as needed. Click <strong>Update Grants</strong> below to save all your changes. To set a field to the same value for ALL rows, enter that value for the first Grant and then click the <strong>Copy icon</strong> (next to the column title).{/ts}
   </div>
   <table class="crm-copy-fields">
     <thead class="sticky">
@@ -39,9 +39,9 @@
     {/foreach}
     </tr>
     </thead>
-  {foreach from=$componentIds item=cid}
-  <tr class="{cycle values="odd-row,even-row"}" entity_id="{$cid}">
-    <td>{$sortName.$cid}</td>
+  {foreach from=$componentIds item=gid}
+  <tr class="{cycle values="odd-row,even-row"}" entity_id="{$gid}">
+    <td>{$sortName.$gid}</td>
     {foreach from=$fields item=field key=fieldName}
       {if $field.skipDisplay}
         {continue}
@@ -55,11 +55,11 @@
             <tr>
             {* sort by fails for option per line. Added a variable to iterate through the element array*}
               {assign var="index" value="1"}
-              {foreach name=optionOuter key=optionKey item=optionItem from=$form.field.$cid.$n}
+              {foreach name=optionOuter key=optionKey item=optionItem from=$form.field.$gid.$n}
                 {if $index < 10}
                   {assign var="index" value=`$index+1`}
                 {else}
-                  <td class="labels font-light">{$form.field.$cid.$n.$optionKey.html}</td>
+                  <td class="labels font-light">{$form.field.$gid.$n.$optionKey.html}</td>
                   {if $count == $field.options_per_line}
                   </tr>
                   <tr>
@@ -74,17 +74,17 @@
           {/strip}
         </td>
       {elseif ( $fields.$n.data_type eq 'Date') or ( $n eq 'birth_date' ) or ( $n eq 'deceased_date' ) }
-        <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$cid batchUpdate=1}</td>
+        <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$gid batchUpdate=1}</td>
       {elseif $n|substr:0:5 eq 'phone'}
         <td class="compressed">
           {assign var="phone_ext_field" value=$n|replace:'phone':'phone_ext'}
-          {$form.field.$cid.$n.html}
-          {if $form.field.$cid.$phone_ext_field.html}
-            &nbsp;{$form.field.$cid.$phone_ext_field.html}
+          {$form.field.$gid.$n.html}
+          {if $form.field.$gid.$phone_ext_field.html}
+            &nbsp;{$form.field.$gid.$phone_ext_field.html}
           {/if}
         </td>
       {else}
-        <td class="compressed">{$form.field.$cid.$n.html}</td>
+        <td class="compressed">{$form.field.$gid.$n.html}</td>
       {/if}
     {/foreach}
   {/foreach}

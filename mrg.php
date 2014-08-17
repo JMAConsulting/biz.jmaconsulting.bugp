@@ -90,9 +90,7 @@ function getGrantFields() {
     $fields[$key] = $var;
   }
 
-  $fields = array_merge($fields, CRM_Core_BAO_CustomField::getFieldsForImport('Grant'));
-   
-  return $fields;
+  return array_merge($fields, CRM_Core_BAO_CustomField::getFieldsForImport('Grant'));
 }
 
 function mrg_civicrm_searchTasks($objectName, &$tasks) {
@@ -156,7 +154,7 @@ function mrg_civicrm_buildForm($formName, &$form) {
           $form->_elements[$eleKey]->_elements[0]->_options[] = $grantArray;
         } 
         if ($optionKey == '_js') {
-          $form->_elements[$eleKey]->_js .= 'hs_field_name_Grant = '. json_encode($mapperFields['Grant']) . ';';
+          $form->_elements[$eleKey]->_js .= 'hs_field_name_Grant = ' . json_encode($mapperFields['Grant']) . ';';
         }
       }
     } 
@@ -170,54 +168,54 @@ function mrg_civicrm_buildForm($formName, &$form) {
 
 function &exportableFields() {
   $grantFields = array(
-                       'grant_status' => array(
-                                               'title' => 'Grant Status',
-                                               'name' => 'grant_status',
-                                               'data_type' => CRM_Utils_Type::T_STRING,
-                                               ),
-                       'grant_type' => array(
-                                             'title' => 'Grant Type',
-                                             'name' => 'grant_type',
-                                             'data_type' => CRM_Utils_Type::T_STRING,
-                                             ),
-                       'grant_money_transfer_date' => array(
-                                                            'title' => 'Grant Money Transfer Date',
-                                                            'name' => 'grant_money_transfer_date',
-                                                            'data_type' => CRM_Utils_Type::T_DATE,
-                                                            ),
-                       'grant_amount_requested' => array(
-                                                         'title' => 'Grant Amount Requested',
-                                                         'name' => 'grant_amount_requested',
-                                                         'where' => 'civicrm_grant.amount_requested',
-                                                         'data_type' => CRM_Utils_Type::T_FLOAT,
-                                                         ),
-                       'grant_application_received_date' => array(
-                                                                  'title' => 'Grant Application Recieved Date',
-                                                                  'name' => 'grant_application_received_date',
-                                                                  'data_type' => CRM_Utils_Type::T_DATE,
-                                                                  ),
-                       );
+    'grant_status' => array(
+      'title' => 'Grant Status',
+      'name' => 'grant_status',
+      'data_type' => CRM_Utils_Type::T_STRING,
+    ),
+    'grant_type' => array(
+      'title' => 'Grant Type',
+      'name' => 'grant_type',
+      'data_type' => CRM_Utils_Type::T_STRING,
+    ),
+    'grant_money_transfer_date' => array(
+      'title' => 'Grant Money Transfer Date',
+      'name' => 'grant_money_transfer_date',
+      'data_type' => CRM_Utils_Type::T_DATE,
+    ),
+    'grant_amount_requested' => array(
+      'title' => 'Grant Amount Requested',
+      'name' => 'grant_amount_requested',
+      'where' => 'civicrm_grant.amount_requested',
+      'data_type' => CRM_Utils_Type::T_FLOAT,
+    ),
+    'grant_application_received_date' => array(
+      'title' => 'Grant Application Recieved Date',
+      'name' => 'grant_application_received_date',
+      'data_type' => CRM_Utils_Type::T_DATE,
+    ),
+  );
 
   $fields = CRM_Grant_DAO_Grant::export();
-  $grantNote = array('grant_note' => array('title' => ts('Grant Note'),
-                                           'name' => 'grant_note',
-                                           'data_type' => CRM_Utils_Type::T_TEXT,
-                                           ));
+  $grantNote = array('grant_note' => array(
+    'title' => ts('Grant Note'),
+    'name' => 'grant_note',
+    'data_type' => CRM_Utils_Type::T_TEXT,
+  ));
   $fields = array_merge($fields, $grantFields, $grantNote,
-                        CRM_Core_BAO_CustomField::getFieldsForImport('Grant')
-                        );
+    CRM_Core_BAO_CustomField::getFieldsForImport('Grant')
+  );
   return $fields;
 }
 
 function getProfileFields() {
   $exportableFields = exportableFields('Grant');
       
-  $skipFields = array('grant_id', 'grant_contact_id', 'grant_type', 'grant_note', 'grant_status' );
+  $skipFields = array('grant_id', 'grant_contact_id', 'grant_type', 'grant_note', 'grant_status');
   foreach ($skipFields as $field) {
     if (isset($exportableFields[$field])) {
       unset($exportableFields[$field]);
     }
   }
-      
   return $exportableFields;
 }

@@ -33,7 +33,7 @@
     <tr> 
         <td class="label"></td>
         <td>
-            {include file="CRM/Contact/Form/Task.tpl"}
+            {include file="CRM/Grant/Form/Task.tpl"}
         </td>
     </tr>
 </table>

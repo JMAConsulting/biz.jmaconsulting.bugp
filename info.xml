@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 <extension key="biz.jmaconsulting.mrg" type="module">
+  <downloadUrl>https://github.com/downloads/JMAConsulting/biz.jmaconsulting.mrg/archive/1.0.zip</downloadUrl>
   <file>mrg</file>
   <name>Batch Update of Grants via Profile</name>
   <description>Batch Update of Grants via Profile</description>
+  <urls>
+    <url desc="Support">https://github.com/JMAConsulting/biz.jmaconsulting.mrg/issues?state=open</url>
+    <url desc="Documentation">https://github.com/JMAConsulting/biz.jmaconsulting.mrg/blob/1.0/README.md</url>
+  </urls>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>JMA Consulting</author>
@@ -12,9 +17,10 @@
   <version>1.0</version>
   <develStage>alpha</develStage>
   <compatibility>
-    <ver>4.2</ver>
+    <ver>4.4</ver>
+    <ver>4.5</ver>
   </compatibility>
-  <comments>This is a new, undeveloped module</comments>
+  <comments></comments>
   <civix>
     <namespace>CRM/Mrg</namespace>
   </civix>
