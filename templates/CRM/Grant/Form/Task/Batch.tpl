@@ -54,8 +54,8 @@
                 {elseif !empty($fields.$n.html_type)  && $fields.$n.html_type eq 'Autocomplete-Select'}
               	    {assign var=elementName value=field[$cid][$n]}
             	    <td class="compressed">{$form.field.$cid.$n.html}{include file="CRM/Custom/Form/ContactReference.tpl" element_name=$elementName}</td>
-		{else}
-                 <td class="compressed">{$form.field.$cid.$n.html}</td>
+		 {else}
+                   <td class="compressed">{$form.field.$cid.$n.html}</td>
                 {/if}
               {/foreach}
              </tr>
