@@ -128,6 +128,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
 
     //fix for CRM-2752
     $customFields = CRM_Core_BAO_CustomField::getFields('Grant');
+    $entityColumnValue = array();
     foreach ($this->_grantIds as $grantId) {
       $typeId = CRM_Core_DAO::getFieldValue("CRM_Grant_DAO_Grant", $grantId, 'grant_type_id');
       foreach ($this->_fields as $name => $field) {
