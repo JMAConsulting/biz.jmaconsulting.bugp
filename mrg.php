@@ -164,6 +164,22 @@ function mrg_civicrm_buildForm($formName, &$form) {
       $form->setDefaults($defaults);
     }
   }
+  
+  if ($formName == 'CRM_Grant_Form_Task_Batch') {
+    foreach ($form->_fields as $key => $value) {
+      if ($value['field_type'] == 'Contact' && $value['data_type'] == 'ContactReference') {
+        foreach ($form->getVar('_grantIds') as $grantId) {
+          $fldName[] = "field[$grantId][$key]";
+        }
+        foreach ($fldName as $name) {
+          if (array_key_exists($name.'_id', $form->_defaultValues)) {
+            $form->_defaultValues[$name] = $form->_defaultValues[$name.'_id'];
+          }
+        }
+      }
+    }
+    $form->setDefaults($form->_defaultValues);
+  }
 }
 
 function &exportableFields() {
