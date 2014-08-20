@@ -114,14 +114,13 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         $suppressFields = TRUE;
         unset($this->_fields[$name]);
       }
-
       //fix to reduce size as we are using this field in grid
       if (is_array($field['attributes']) && $this->_fields[$name]['attributes']['size'] > 19) {
         //shrink class to "form-text-medium"
         $this->_fields[$name]['attributes']['size'] = 19;
       }
     }
-
+    
     $this->_fields = array_slice($this->_fields, 0, $this->_maxFields);
 
     $this->assign('profileTitle', $this->_title);
@@ -159,12 +158,11 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     }
 
     $this->assign('fields', $this->_fields);
-
     // don't set the status message when form is submitted.
     $buttonName = $this->controller->getButtonName('submit');
 
     if ($suppressFields && $buttonName != '_qf_Batch_next') {
-      CRM_Core_Session::setStatus(ts("FILE or Autocomplete Select type field(s) in the selected profile are not supported for Batch Update and have been excluded."), ts('Unsupported Field Type'), 'error');
+      CRM_Core_Session::setStatus(ts("FILE field(s) in the selected profile are not supported for Batch Update and have been excluded."), ts('Unsupported Field Type'), 'error');
     }
 
     $this->addDefaultButtons(ts('Update Grant(s)'));
@@ -199,7 +197,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    * @return void
    */
   public function postProcess() {
-    $params = $this->exportValues();
+    $params = $this->controller->exportValues($this->_name);
     $dates = array(
       'application_received_date',
       'decision_date',
