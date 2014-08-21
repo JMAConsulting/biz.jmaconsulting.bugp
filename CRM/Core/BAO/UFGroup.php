@@ -3263,12 +3263,12 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
               $skipValue = FALSE;
 
               foreach ($formattedGroupTree as $tree) {
-                if ('CheckBox' == CRM_Utils_Array::value('html_type', $tree['fields'][$customFieldDetails[0]])) {
+                if (isset($tree['fields'][$customFieldDetails[0]]) && 'CheckBox' == CRM_Utils_Array::value('html_type', $tree['fields'][$customFieldDetails[0]])) {
                   $skipValue = TRUE;
                   $defaults['field'][$componentId][$name] = $customValue;
                   break;
                 }
-                elseif (CRM_Utils_Array::value('data_type', $tree['fields'][$customFieldDetails[0]]) == 'Date') {
+                elseif (isset($tree['fields'][$customFieldDetails[0]]) && CRM_Utils_Array::value('data_type', $tree['fields'][$customFieldDetails[0]]) == 'Date') {
                   $skipValue = TRUE;
 
                   // CRM-6681, $default contains formatted date, time values.
