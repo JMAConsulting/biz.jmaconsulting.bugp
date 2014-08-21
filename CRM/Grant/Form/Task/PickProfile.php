@@ -55,7 +55,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    * maximum profile fields that will be displayed
    *
    */
-  protected $_maxFields = 9;
+  protected $_maxFields = 20;
 
   /**
    * variable to store redirect path
@@ -143,10 +143,6 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    * @access public
    */
   static function formRule($fields) {
-    //TODO: check if we need this form rule
-    if (CRM_Core_BAO_UFField::checkProfileType($fields['uf_group_id'])) {
-      $errorMsg['uf_group_id'] = "You cannot select mix profile for batch update.";
-    }
 
     if (!empty($errorMsg)) {
       //  return $errorMsg;

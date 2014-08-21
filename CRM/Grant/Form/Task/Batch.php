@@ -49,7 +49,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    * maximum profile fields that will be displayed
    *
    */
-  protected $_maxFields = 9;
+  protected $_maxFields = 20;
 
   /**
    * variable to store redirect path
@@ -115,7 +115,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         unset($this->_fields[$name]);
       }
       //fix to reduce size as we are using this field in grid
-      if (is_array($field['attributes']) && $this->_fields[$name]['attributes']['size'] > 19) {
+      if (is_array($field['attributes']) && isset($this->_fields[$name]['attributes']['size']) && $this->_fields[$name]['attributes']['size'] > 19) {
         //shrink class to "form-text-medium"
         $this->_fields[$name]['attributes']['size'] = 19;
       }
