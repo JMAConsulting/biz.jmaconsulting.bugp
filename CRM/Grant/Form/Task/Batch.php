@@ -140,8 +140,8 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
             );
           }
 
-          if (!empty($entityColumnValue[$typeId]) ||
-            CRM_Utils_System::isNull($entityColumnValue[$typeId])
+          if (!empty($entityColumnValue[$typeId]) || (isset($entityColumnValue[$typeId]) && 
+              CRM_Utils_System::isNull($entityColumnValue[$typeId]))
           ) {
             CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
           }
