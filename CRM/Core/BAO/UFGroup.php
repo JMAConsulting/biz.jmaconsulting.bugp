@@ -1891,7 +1891,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
       $form->addDate($name, $title, $required, array('formatType' => 'birth'));
     }
     elseif (in_array($fieldName, array(
-      'membership_start_date', 'membership_end_date', 'join_date'))) {
+          'membership_start_date', 'membership_end_date', 'join_date', 'application_received_date', 'decision_date', 'money_transfer_date', 'grant_due_date'))) {
       $form->addDate($name, $title, $required, array('formatType' => 'custom'));
     }
     elseif (CRM_Utils_Array::value('name',$field) == 'membership_type') {
@@ -3208,14 +3208,21 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
     //get the component values.
     CRM_Core_DAO::commonRetrieve($componentBAO, $params, $values);
 
-    $formattedGroupTree = array();
+    $formattedGroupTree = $notReq =array();
     $dateTimeFields = array('participant_register_date', 'activity_date_time', 'receive_date', 'receipt_date', 'cancel_date', 'thankyou_date', 'membership_start_date', 'membership_end_date', 'join_date');
+    $dateFields = array('application_received_date', 'decision_date', 'money_transfer_date', 'grant_due_date');
     foreach ($fields as $name => $field) {
       $fldName = $isStandalone ? $name : "field[$componentId][$name]";
       if (in_array($name, $dateTimeFields)) {
         $timefldName = $isStandalone ? "{$name}_time" : "field[$componentId][{$name}_time]";
         if (!empty($values[$name])) {
           list($defaults[$fldName], $defaults[$timefldName]) = CRM_Utils_Date::setDateDefaults($values[$name]);
+        }
+      }
+      elseif (in_array($name, $dateFields)) {
+        $fldName = $isStandalone ? $name : "field[$componentId][$name]";
+        if (!empty($values[$name])) {
+          list($defaults[$fldName], $notReq) = CRM_Utils_Date::setDateDefaults($values[$name]);
         }
       }
       elseif (array_key_exists($name, $values)) {
