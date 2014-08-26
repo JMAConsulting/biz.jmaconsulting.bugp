@@ -345,4 +345,30 @@ Group By  componentId";
       }
     }
   }
+  
+  function getProfileTypes($profileId) {
+    $totalGrantType = count(CRM_Core_PseudoConstant::get('CRM_Grant_DAO_Grant', 'grant_type_id'));
+    $sql = "SELECT ccg.extends_entity_column_value FROM civicrm_uf_field cuf
+INNER JOIN civicrm_custom_field ccf ON ccf.id = REPLACE(cuf.field_name, 'custom_', '')
+INNER JOIN civicrm_custom_group ccg ON ccg.id = ccf.custom_group_id
+WHERE cuf.uf_group_id = {$profileId} AND ccg.extends LIKE 'Grant'
+GROUP BY ccg.id";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    $grantTypes = array();
+    while ($dao->fetch()) {
+      if ($dao->extends_entity_column_value) {
+        $gTypes = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, $dao->extends_entity_column_value));
+        if (count($gTypes) == $totalGrantType) {
+          continue;
+        }
+        $grantTypes = array_merge($grantTypes, $gTypes);
+      }
+    } 
+    if (count($grantTypes) > 1) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
 }

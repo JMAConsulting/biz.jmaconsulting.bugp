@@ -143,11 +143,11 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    * @access public
    */
   static function formRule($fields) {
-
-    if (!empty($errorMsg)) {
-      //  return $errorMsg;
+    $errors = array();
+    if (CRM_Mrg_BAO_Mrg::getProfileTypes($fields['uf_group_id'])) {
+      $errors['uf_group_id'] = ts('Batch update requires that all selected grants be the same basic type (e.g. all Emergency OR all Family Support...). Please modify your selection and try again.');
     }
-    return TRUE;
+    return $errors;
   }
 
   /**

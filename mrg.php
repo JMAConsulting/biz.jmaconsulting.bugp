@@ -167,7 +167,7 @@ function mrg_civicrm_buildForm($formName, &$form) {
   
   if ($formName == 'CRM_Grant_Form_Task_Batch') {
     foreach ($form->_fields as $key => $value) {
-      if ($value['field_type'] == 'Contact' && $value['data_type'] == 'ContactReference') {
+      if ($value['field_type'] == 'Contact' && CRM_Utils_Array::value('data_type', $value) == 'ContactReference') {
         foreach ($form->getVar('_grantIds') as $grantId) {
           $fldName[] = "field[$grantId][$key]";
         }
