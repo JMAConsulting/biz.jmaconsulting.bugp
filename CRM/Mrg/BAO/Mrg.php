@@ -346,7 +346,7 @@ Group By  componentId";
     }
   }
   
-  function getProfileTypes($profileId) {
+  function getProfileTypes($profileId, $grantIds) {
     $totalGrantType = count(CRM_Core_PseudoConstant::get('CRM_Grant_DAO_Grant', 'grant_type_id'));
     $sql = "SELECT ccg.extends_entity_column_value FROM civicrm_uf_field cuf
 INNER JOIN civicrm_custom_field ccf ON ccf.id = REPLACE(cuf.field_name, 'custom_', '')
@@ -366,6 +366,13 @@ GROUP BY ccg.id";
     } 
     if (count($grantTypes) > 1) {
       return TRUE;
+    }
+    elseif (count($grantTypes) == 1) {
+      $query = 'SELECT id FROM civicrm_grant WHERE id IN (' . implode(',', $grantIds) . ') GROUP BY grant_type_id';
+      $result = CRM_Core_DAO::executeQuery($query);
+      if ($result->N > 1) {
+        return TRUE;      
+      }
     }
     else {
       return FALSE;
