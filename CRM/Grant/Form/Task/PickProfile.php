@@ -77,7 +77,14 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
 
     $session = CRM_Core_Session::singleton();
     $this->_userContext = $session->readUserContext();
-
+    $this->_contactDetails = CRM_Mrg_BAO_Mrg::contactDetails($this->_grantIds);
+    $this->set('contactDetails', $this->_contactDetails);
+    $this->_contactIds = array();
+    
+    foreach ($this->_contactDetails as $value) {
+      $this->_contactIds[] = $value['contact_id'];
+    }
+        
     $validate = FALSE;
     //validations
     if (count($this->_grantIds) > $this->_maxGrants) {
@@ -85,6 +92,11 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
       $validate = TRUE;
     }
 
+    if (CRM_Contact_BAO_Contact_Utils::checkContactType($this->_contactIds) && 0) {
+      CRM_Core_Session::setStatus(ts("Batch update requires that all selected contacts be the same basic type (e.g. all Individuals OR all Organizations...). Please modify your selection and try again."), ts('Contact Type Mismatch'), 'error');
+      $validate = TRUE;
+    }
+    
     // then redirect if error
     if ($validate) {
       CRM_Utils_System::redirect($this->_userContext);

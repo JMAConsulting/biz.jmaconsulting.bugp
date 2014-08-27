@@ -80,7 +80,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
      * initialize the task and row fields
      */
     parent::preProcess();
-    $this->_contactDetails = CRM_Mrg_BAO_Mrg::contactDetails($this->_grantIds);
+    $this->_contactDetails = $this->get('contactDetails');
     $this->assign('contactDetails', $this->_contactDetails);
     $this->assign('readOnlyFields', array('sort_name' => ts('Name')));
   }
