@@ -161,7 +161,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     }
     
     if (CRM_Core_BAO_UFField::checkProfileType($fields['uf_group_id'])) {
-      $errors['uf_group_id'] = "You cannot select mix profile for batch update.";
+      $errors['uf_group_id'] = ts("You cannot select mix profile for batch update.");
       return $errors;
     }
     
