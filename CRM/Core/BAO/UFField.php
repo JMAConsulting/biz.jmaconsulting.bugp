@@ -541,7 +541,7 @@ WHERE cf.id IN (" . $customFieldIds . ") AND is_multiple = 1 LIMIT 0,1";
     CRM_Contact_BAO_ContactType::suppressSubTypes($profileTypes);
 
     $contactTypes = array('Contact', 'Individual', 'Household', 'Organization');
-    $components = array('Contribution', 'Participant', 'Membership', 'Activity');
+    $components = array('Contribution', 'Participant', 'Membership', 'Activity', 'Grant');
     $fields = array();
 
     // check for mix profile condition
