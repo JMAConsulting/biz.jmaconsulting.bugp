@@ -364,18 +364,19 @@ GROUP BY ccg.id";
         $grantTypes = array_merge($grantTypes, $gTypes);
       }
     } 
+    
     if (count($grantTypes) > 1) {
       return TRUE;
     }
-    elseif (count($grantTypes) == 1) {
-      $query = 'SELECT id FROM civicrm_grant WHERE id IN (' . implode(',', $grantIds) . ') GROUP BY grant_type_id';
+    else {
+      $query = 'SELECT cg.id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') GROUP BY grant_type_id, contact_type';
       $result = CRM_Core_DAO::executeQuery($query);
       if ($result->N > 1) {
         return TRUE;      
       }
-    }
-    else {
-      return FALSE;
+      else {
+        return FALSE;
+      }
     }
   }
 }

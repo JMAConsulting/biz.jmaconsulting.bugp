@@ -160,14 +160,9 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
       return $errors;
     }
     
-    if (CRM_Core_BAO_UFField::checkProfileType($fields['uf_group_id'])) {
-      $errors['uf_group_id'] = ts("You cannot select mix profile for batch update.");
-      return $errors;
-    }
-    
     // Throw error when a profile is used for multiple grant type
     if (CRM_Mrg_BAO_Mrg::getProfileTypes($fields['uf_group_id'], $form->_grantIds)) {
-      $errors['uf_group_id'] = ts('Batch update requires that all selected grants be the same basic type (e.g. all Emergency OR all Family Support...) or the profile selected for batch update must allow editing of all grant types. Please modify your selection and try again.');
+      $errors['uf_group_id'] = ts('Batch update requires that all selected grants be the same basic type (e.g. all Emergency OR all Family Support...) and of the sam contact type. The profile selected for batch update must allow editing of all grant types. Please modify your selection and try again.');
     }
     return $errors;
   }
