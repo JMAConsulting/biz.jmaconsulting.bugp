@@ -369,7 +369,24 @@ GROUP BY ccg.id";
       return TRUE;
     }
     else {
-      $query = 'SELECT cg.id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') GROUP BY grant_type_id, contact_type';
+      $groupByClause = array();
+      if (!empty($grantTypes)) {
+        $groupByClause[] = 'grant_type_id';
+      }
+      $dao = CRM_Core_DAO::executeQuery("SELECT id FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
+        AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
+      
+      if ($dao->N) {
+        $groupByClause[] = 'contact_type';
+      }
+      
+      $query = 'SELECT cg.id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
+      if (!empty($groupByClause)) {
+        $query .= ' GROUP BY ' . implode(',', $groupByClause);
+      }
+      else {
+        return FALSE;
+      }
       $result = CRM_Core_DAO::executeQuery($query);
       if ($result->N > 1) {
         return TRUE;      
