@@ -1,8 +1,8 @@
-biz.jmaconsulting.gbu
+biz.jmaconsulting.bugp
 =====================
 
-Grant Batch Updates
--------------------
+Batch Update of Grants via Profile
+----------------------------------
 
 This extension provides batch update functionality for grants similar that for contacts in CiviCRM core.
 
