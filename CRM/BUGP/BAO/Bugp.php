@@ -34,10 +34,10 @@
  */
 
 /**
- * This class contains function for Mrg
+ * This class contains function for BUGP
  *
  */
-class CRM_Mrg_BAO_Mrg extends CRM_Core_DAO {
+class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
 
   /**
    * This function retrieve component related contact information.

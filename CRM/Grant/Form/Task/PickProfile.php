@@ -77,7 +77,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
 
     $session = CRM_Core_Session::singleton();
     $this->_userContext = $session->readUserContext();
-    $this->_contactDetails = CRM_Mrg_BAO_Mrg::contactDetails($this->_grantIds);
+    $this->_contactDetails = CRM_BUGP_BAO_Bugp::contactDetails($this->_grantIds);
     $this->set('contactDetails', $this->_contactDetails);
     $this->_contactIds = array();
     
@@ -161,7 +161,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     }
     
     // Throw error when a profile is used for multiple grant type
-    if (CRM_Mrg_BAO_Mrg::getProfileTypes($fields['uf_group_id'], $form->_grantIds)) {
+    if (CRM_BUGP_BAO_Bugp::getProfileTypes($fields['uf_group_id'], $form->_grantIds)) {
       $errors['uf_group_id'] = ts('Batch update requires that all selected grants be the same basic type (e.g. all Emergency OR all Family Support...) and of the same contact type. The profile selected for batch update must allow editing of all grant types. Please modify your selection and try again.');
     }
     return $errors;
