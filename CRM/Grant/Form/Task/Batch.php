@@ -184,7 +184,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     $defaults = array();
     foreach ($this->_grantIds as $grantId) {
       CRM_Core_BAO_UFGroup::setProfileDefaults(NULL, $this->_fields, $defaults, FALSE, $grantId, 'Grant');
-      CRM_Mrg_BAO_Mrg::setProfileDefaults($this->_contactDetails[$grantId]['contact_id'], $this->_fields, $defaults, $grantId);
+      CRM_BUGP_BAO_Bugp::setProfileDefaults($this->_contactDetails[$grantId]['contact_id'], $this->_fields, $defaults, $grantId);
     }
 
     return $defaults;

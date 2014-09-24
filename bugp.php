@@ -1,12 +1,12 @@
 <?php
 
-require_once 'mrg.civix.php';
+require_once 'bugp.civix.php';
 
 /**
  * Implementation of hook_civicrm_config
  */
-function mrg_civicrm_config(&$config) {
-  _mrg_civix_civicrm_config($config);
+function bugp_civicrm_config(&$config) {
+  _bugp_civix_civicrm_config($config);
 }
 
 /**
@@ -14,36 +14,36 @@ function mrg_civicrm_config(&$config) {
  *
  * @param $files array(string)
  */
-function mrg_civicrm_xmlMenu(&$files) {
-  _mrg_civix_civicrm_xmlMenu($files);
+function bugp_civicrm_xmlMenu(&$files) {
+  _bugp_civix_civicrm_xmlMenu($files);
 }
 
 /**
  * Implementation of hook_civicrm_install
  */
-function mrg_civicrm_install() {
-  return _mrg_civix_civicrm_install();
+function bugp_civicrm_install() {
+  return _bugp_civix_civicrm_install();
 }
 
 /**
  * Implementation of hook_civicrm_uninstall
  */
-function mrg_civicrm_uninstall() {
-  return _mrg_civix_civicrm_uninstall();
+function bugp_civicrm_uninstall() {
+  return _bugp_civix_civicrm_uninstall();
 }
 
 /**
  * Implementation of hook_civicrm_enable
  */
-function mrg_civicrm_enable() {
-  return _mrg_civix_civicrm_enable();
+function bugp_civicrm_enable() {
+  return _bugp_civix_civicrm_enable();
 }
 
 /**
  * Implementation of hook_civicrm_disable
  */
-function mrg_civicrm_disable() {
-  return _mrg_civix_civicrm_disable();
+function bugp_civicrm_disable() {
+  return _bugp_civix_civicrm_disable();
 }
 
 /**
@@ -55,8 +55,8 @@ function mrg_civicrm_disable() {
  * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
  *                for 'enqueue', returns void
  */
-function mrg_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _mrg_civix_civicrm_upgrade($op, $queue);
+function bugp_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  return _bugp_civix_civicrm_upgrade($op, $queue);
 }
 
 /**
@@ -65,8 +65,8 @@ function mrg_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
  */
-function mrg_civicrm_managed(&$entities) {
-  return _mrg_civix_civicrm_managed($entities);
+function bugp_civicrm_managed(&$entities) {
+  return _bugp_civix_civicrm_managed($entities);
 }
 
 /**
@@ -93,7 +93,7 @@ function getGrantFields() {
   return array_merge($fields, CRM_Core_BAO_CustomField::getFieldsForImport('Grant'));
 }
 
-function mrg_civicrm_searchTasks($objectName, &$tasks) {
+function bugp_civicrm_searchTasks($objectName, &$tasks) {
   if ($objectName == 'grant') {
     foreach ($tasks as $key => $value) {
       if ($value['title'] == 'Update Grants') {
@@ -107,7 +107,7 @@ function mrg_civicrm_searchTasks($objectName, &$tasks) {
   }
 }
 
-function mrg_civicrm_buildForm($formName, &$form) {
+function bugp_civicrm_buildForm($formName, &$form) {
   // Code to be done to avoid core editing
   if ($formName == "CRM_UF_Form_Field" && CRM_Core_Permission::access('CiviGrant')) {
     $grantFields = getProfileFields();
