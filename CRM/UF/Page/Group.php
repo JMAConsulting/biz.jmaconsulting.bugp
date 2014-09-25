@@ -474,7 +474,6 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
             $typeName = 'Activity';
             $valueLabels = CRM_Core_PseudoConstant::ActivityType(TRUE, TRUE, FALSE, 'label', TRUE);
             break;
-
           case 'CaseType':
             $typeName = 'Case';
             $valueLabels = CRM_Case_PseudoConstant::caseType();
