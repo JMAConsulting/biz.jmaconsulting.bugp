@@ -15,9 +15,9 @@
     <author>JMA Consulting</author>
     <email>joe.murray@jmaconsulting.biz</email>
   </maintainer>
-  <releaseDate>2014-09-22</releaseDate>
+  <releaseDate>2014-09-25</releaseDate>
   <version>1.0</version>
-  <develStage>beta</develStage>
+  <develStage>stable</develStage>
   <compatibility>
     <ver>4.5</ver>
   </compatibility>
