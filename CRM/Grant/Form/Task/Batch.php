@@ -52,18 +52,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
   protected $_maxFields = 20;
 
   /**
-   * variable to store redirect path
-   *
-   */
-  protected $_userContext;
-
-  /**
-   * maximum contacts that should be allowed to update
-   *
-   */
-  protected $_maxGrants = 100;
-
-  /**
    * contact details
    *
    */
