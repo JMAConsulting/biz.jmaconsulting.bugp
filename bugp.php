@@ -184,41 +184,26 @@ function bugp_civicrm_buildForm($formName, &$form) {
 
 function &exportableFields() {
   $grantFields = array(
-    'grant_status' => array(
-      'title' => 'Grant Status',
+    'grant_status_id' => array(
+      'title' => ts('Grant Status'),
       'name' => 'grant_status',
       'data_type' => CRM_Utils_Type::T_STRING,
     ),
-    'grant_type' => array(
-      'title' => 'Grant Type',
-      'name' => 'grant_type',
-      'data_type' => CRM_Utils_Type::T_STRING,
-    ),
-    'grant_money_transfer_date' => array(
-      'title' => 'Grant Money Transfer Date',
-      'name' => 'grant_money_transfer_date',
-      'data_type' => CRM_Utils_Type::T_DATE,
-    ),
-    'grant_amount_requested' => array(
-      'title' => 'Grant Amount Requested',
+    'amount_requested' => array(
+      'title' => ts('Grant Amount Requested'),
       'name' => 'grant_amount_requested',
       'where' => 'civicrm_grant.amount_requested',
       'data_type' => CRM_Utils_Type::T_FLOAT,
     ),
-    'grant_application_received_date' => array(
-      'title' => 'Grant Application Recieved Date',
-      'name' => 'grant_application_received_date',
+    'grant_due_date' => array(
+      'title' => ts('Grant Report Due Date'),
+      'name' => 'grant_due_date',
       'data_type' => CRM_Utils_Type::T_DATE,
     ),
   );
 
   $fields = CRM_Grant_DAO_Grant::export();
-  $grantNote = array('grant_note' => array(
-    'title' => ts('Grant Note'),
-    'name' => 'grant_note',
-    'data_type' => CRM_Utils_Type::T_TEXT,
-  ));
-  $fields = array_merge($fields, $grantFields, $grantNote,
+  $fields = array_merge($fields, $grantFields,
     CRM_Core_BAO_CustomField::getFieldsForImport('Grant')
   );
   return $fields;
@@ -227,7 +212,7 @@ function &exportableFields() {
 function getProfileFields() {
   $exportableFields = exportableFields('Grant');
       
-  $skipFields = array('grant_id', 'grant_contact_id', 'grant_type', 'grant_note', 'grant_status');
+  $skipFields = array('grant_id', 'grant_contact_id');
   foreach ($skipFields as $field) {
     if (isset($exportableFields[$field])) {
       unset($exportableFields[$field]);

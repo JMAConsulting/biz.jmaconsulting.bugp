@@ -202,7 +202,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     $dates = array(
       'application_received_date',
       'decision_date',
-      'money_transfer_date',
+      'grant_money_transfer_date',
       'grant_due_date',
     );
     if (isset($params['field'])) {
@@ -217,7 +217,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         );
 
         $ids['grant_id'] = $key;
-        //TODO: need to QA date fields for grants
         foreach ($dates as $val) {
           if (isset($value[$val])) {
             $value[$val] = CRM_Utils_Date::processDate($value[$val]);
@@ -227,14 +226,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         if (!empty($value['grant_money_transfer_date'])) {
           $value['money_transfer_date'] = $value['grant_money_transfer_date'];   
           unset($value['grant_money_transfer_date']);
-        }
-        if (!empty($value['grant_amount_requested'])) {
-          $value['amount_requested'] = $value['grant_amount_requested'];   
-          unset($value['grant_amount_requested']);
-        }
-        if (!empty($value['grant_application_received_date'])) {
-          $value['application_received_date'] = $value['grant_application_received_date'];   
-          unset($value['grant_application_received_date']);
         }
         
         $grant = CRM_Grant_BAO_Grant::add($value, $ids);
