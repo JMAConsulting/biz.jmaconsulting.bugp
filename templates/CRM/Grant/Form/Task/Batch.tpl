@@ -24,46 +24,47 @@
  +--------------------------------------------------------------------+
 *}
 <div class="batch-update form-item">
-<fieldset>
-<div id="help">
-    {ts}Update field values for each Grant as needed. Click <strong>Update Grant(s)</strong> below to save all your changes. To set a field to the same value for ALL rows, enter that value for the first grant and then click the <strong>Copy icon</strong> (next to the column title).{/ts}
-</div>
+  <fieldset>
+    <div id="help">
+      {ts}Update field values for each Grant as needed. Click <strong>Update Grant(s)</strong> below to save all your changes. To set a field to the same value for ALL rows, enter that value for the first grant and then click the <strong>Copy icon</strong> (next to the column title).{/ts}
+    </div>
     <legend>{$profileTitle}</legend>
     <table class="crm-copy-fields">
-    <thead class="sticky">
-            <tr class="columnheader">
-             {foreach from=$readOnlyFields item=fTitle key=fName}
-              <th>{$fTitle}</th>
-            {/foreach}
+      <thead class="sticky">
+        <tr class="columnheader">
+          {foreach from=$readOnlyFields item=fTitle key=fName}
+            <th>{$fTitle}</th>
+          {/foreach}
 
-             {foreach from=$fields item=field key=fieldName}
-                <td><img  src="{$config->resourceBase}i/copy.png" alt="{ts 1=$field.title}Click to copy %1 from row one to all rows.{/ts}" fname="{$field.name}" class="action-icon" title="{ts}Click here to copy the value in row one to ALL rows.{/ts}" />{$field.title}</td>
-             {/foreach}
-            </tr>
-          </thead>
-            {foreach from=$componentIds item=cid}
-             <tr class="{cycle values="odd-row,even-row"}" entity_id="{$cid}">
-        {foreach from=$readOnlyFields item=fTitle key=fName}
-           <td>{$contactDetails.$cid.$fName}</td>
-        {/foreach}
+          {foreach from=$fields item=field key=fieldName}
+            <td><img  src="{$config->resourceBase}i/copy.png" alt="{ts 1=$field.title}Click to copy %1 from row one to all rows.{/ts}" fname="{$field.name}" class="action-icon" title="{ts}Click here to copy the value in row one to ALL rows.{/ts}" />{$field.title}</td>
+          {/foreach}
+        </tr>
+      </thead>
+      
+      {assign var='dateArray' value=','|explode:"Date,decision_date,grant_money_transfer_date,application_received_date,grant_due_date"}
+      {foreach from=$componentIds item=cid}
+        <tr class="{cycle values="odd-row,even-row"}" entity_id="{$cid}">
+          {foreach from=$readOnlyFields item=fTitle key=fName}
+            <td>{$contactDetails.$cid.$fName}</td>
+          {/foreach}
 
-              {foreach from=$fields item=field key=fieldName}
-                {assign var=n value=$field.name}
-                {if ( $fields.$n.data_type eq 'Date') or ( $n eq 'decision_date' ) or ( $n eq 'money_transfer_date' ) or ( $n eq 'application_received_date' ) or ( $n eq 'grant_due_date' )}
-                   <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$cid batchUpdate=1}</td>
-                {elseif !empty($fields.$n.html_type)  && $fields.$n.html_type eq 'Autocomplete-Select'}
-              	    {assign var=elementName value=field[$cid][$n]}
-            	    <td class="compressed">{$form.field.$cid.$n.html}{include file="CRM/Custom/Form/ContactReference.tpl" element_name=$elementName}</td>
-		 {else}
-                   <td class="compressed">{$form.field.$cid.$n.html}</td>
-                {/if}
-              {/foreach}
-             </tr>
-            {/foreach}
-           </tr>
-         </table>
-         <div class="crm-submit-buttons">{if $fields}{$form._qf_Batch_refresh.html}{/if} &nbsp; {$form.buttons.html}</div>
-        </fieldset>
+          {foreach from=$fields item=field key=fieldName}
+            {assign var=n value=$field.name}
+	    {if ($fields.$n.data_type eq 'Date') or ($n|in_array:$dateArray)}
+              <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$cid batchUpdate=1}</td>
+            {elseif !empty($fields.$n.html_type)  && $fields.$n.html_type eq 'Autocomplete-Select'}
+              {assign var=elementName value=field[$cid][$n]}
+              <td class="compressed">{$form.field.$cid.$n.html}{include file="CRM/Custom/Form/ContactReference.tpl" element_name=$elementName}</td>
+	    {else}
+              <td class="compressed">{$form.field.$cid.$n.html}</td>
+            {/if}
+          {/foreach}
+        </tr>
+      {/foreach}
+    </table>
+    <div class="crm-submit-buttons">{if $fields}{$form._qf_Batch_refresh.html}{/if} &nbsp; {$form.buttons.html}</div>
+  </fieldset>
 </div>
 
 {*include batch copy js js file*}
