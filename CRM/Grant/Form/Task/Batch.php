@@ -173,6 +173,12 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     foreach ($this->_grantIds as $grantId) {
       CRM_Core_BAO_UFGroup::setProfileDefaults(NULL, $this->_fields, $defaults, FALSE, $grantId, 'Grant');
       CRM_BUGP_BAO_Bugp::setProfileDefaults($this->_contactDetails[$grantId]['contact_id'], $this->_fields, $defaults, $grantId);
+      if (array_key_exists('grant_note', $this->_fields)) {
+        $note = CRM_Core_BAO_Note::getNote($grantId, 'civicrm_grant');
+        if (!empty($note)) {
+         $defaults["field[$grantId][grant_note]"] = reset($note);
+        }
+      }
     }
 
     return $defaults;
@@ -216,7 +222,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
           unset($value['grant_money_transfer_date']);
         }
         
-        if (!empty($value['grant_note'])) {
+        if (array_key_exists('grant_note', $value)) {
           $value['note'] = $value['grant_note'];   
           unset($value['grant_note']);
           $note = CRM_Core_BAO_Note::getNote($key, 'civicrm_grant');
