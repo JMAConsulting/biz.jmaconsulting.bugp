@@ -193,12 +193,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    */
   public function postProcess() {
     $params = $this->controller->exportValues($this->_name);
-    $dates = array(
-      'application_received_date',
-      'decision_date',
-      'grant_money_transfer_date',
-      'grant_due_date',
-    );
     if (isset($params['field'])) {
       foreach ($params['field'] as $key => $value) {
 
@@ -211,11 +205,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         );
 
         $ids = array('grant_id' => $key);
-        foreach ($dates as $val) {
-          if (isset($value[$val])) {
-            $value[$val] = CRM_Utils_Date::processDate($value[$val]);
-          }
-        }
         
         if (array_key_exists('grant_money_transfer_date', $value)) {
           $value['money_transfer_date'] = $value['grant_money_transfer_date'];   
