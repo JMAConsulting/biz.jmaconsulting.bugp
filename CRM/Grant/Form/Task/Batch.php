@@ -204,19 +204,28 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
           'Grant'
         );
 
-        $ids['grant_id'] = $key;
+        $ids = array('grant_id' => $key);
         foreach ($dates as $val) {
           if (isset($value[$val])) {
             $value[$val] = CRM_Utils_Date::processDate($value[$val]);
           }
         }
         
-        if (!empty($value['grant_money_transfer_date'])) {
+        if (array_key_exists('grant_money_transfer_date', $value)) {
           $value['money_transfer_date'] = $value['grant_money_transfer_date'];   
           unset($value['grant_money_transfer_date']);
         }
         
-        $grant = CRM_Grant_BAO_Grant::add($value, $ids);
+        if (!empty($value['grant_note'])) {
+          $value['note'] = $value['grant_note'];   
+          unset($value['grant_note']);
+          $note = CRM_Core_BAO_Note::getNote($key, 'civicrm_grant');
+          if (!empty($note)) {
+            $ids['note']['id'] = key($note);
+          }
+        }
+        
+        $grant = CRM_Grant_BAO_Grant::create($value, $ids);
         
         // add custom field values
         if (!empty($value['custom']) &&

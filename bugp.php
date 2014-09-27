@@ -200,6 +200,11 @@ function &exportableFields() {
       'name' => 'grant_due_date',
       'data_type' => CRM_Utils_Type::T_DATE,
     ),
+    'grant_note' => array(
+      'title' => ts('Grant Note'),
+      'name' => 'grant_note',
+      'data_type' => CRM_Utils_Type::T_TEXT,
+    ),
   );
 
   $fields = CRM_Grant_DAO_Grant::export();
