@@ -6,7 +6,7 @@ Batch Update of Grants via Profile
 
 This extension provides batch update functionality for grants similar that for contacts in CiviCRM core.
 
-Up to 50 grants can be edited simultanously in a table-like grid on a webpage. 
+Up to 100 grants can be edited simultanously in a table-like grid on a webpage. 
 
 Usage
 -----
