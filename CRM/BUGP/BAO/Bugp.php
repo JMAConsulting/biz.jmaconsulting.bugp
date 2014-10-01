@@ -396,4 +396,71 @@ GROUP BY ccg.id";
       }
     }
   }
+
+  function getProfileFields() {
+    $exportableFields = exportableFields('Grant');
+    
+    $skipFields = array('grant_id', 'grant_contact_id');
+    foreach ($skipFields as $field) {
+      if (isset($exportableFields[$field])) {
+	unset($exportableFields[$field]);
+      }
+    }
+    return $exportableFields;
+  }
+
+  function &exportableFields() {
+    $grantFields = array(
+      'grant_status_id' => array(
+      'title' => ts('Grant Status'),
+      'name' => 'grant_status',
+      'data_type' => CRM_Utils_Type::T_STRING,
+    ),
+    'amount_requested' => array(
+      'title' => ts('Grant Amount Requested'),
+      'name' => 'grant_amount_requested',
+      'where' => 'civicrm_grant.amount_requested',
+      'data_type' => CRM_Utils_Type::T_FLOAT,
+    ),
+    'grant_due_date' => array(
+      'title' => ts('Grant Report Due Date'),
+      'name' => 'grant_due_date',
+      'data_type' => CRM_Utils_Type::T_DATE,
+    ),
+    'grant_note' => array(
+      'title' => ts('Grant Note'),
+      'name' => 'grant_note',
+      'data_type' => CRM_Utils_Type::T_TEXT,
+    ),
+  );
+
+  $fields = CRM_Grant_DAO_Grant::export();
+  $fields = array_merge($fields, $grantFields,
+    CRM_Core_BAO_CustomField::getFieldsForImport('Grant')
+  );
+  return $fields;
+  }
+
+/**
+ * Function to get list of grant fields for profile
+ * For now we only allow custom grant fields to be in
+ * profile
+ *
+ * @return return the list of grant fields
+ * @static
+ * @access public
+ */
+  function getGrantFields() {
+    $grantFields = CRM_Grant_DAO_Grant::export();
+    $grantFields = array_merge($grantFields, CRM_Core_OptionValue::getFields($mode = 'grant'));
+       
+    $grantFields = array_merge($grantFields, CRM_Financial_DAO_FinancialType::export());
+    
+    foreach ($grantFields as $key => $var) {
+      $fields[$key] = $var;
+    }
+
+    return array_merge($fields, CRM_Core_BAO_CustomField::getFieldsForImport('Grant'));
+  }
+
 }
