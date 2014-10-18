@@ -346,7 +346,7 @@ Group By  componentId";
     }
   }
   
-  function getProfileTypes($profileId, $grantIds) {
+  static function getProfileTypes($profileId, $grantIds) {
     $totalGrantType = count(CRM_Core_PseudoConstant::get('CRM_Grant_DAO_Grant', 'grant_type_id'));
     $sql = "SELECT ccg.extends_entity_column_value FROM civicrm_uf_field cuf
 INNER JOIN civicrm_custom_field ccf ON ccf.id = REPLACE(cuf.field_name, 'custom_', '')
@@ -397,19 +397,19 @@ GROUP BY ccg.id";
     }
   }
 
-  function getProfileFields() {
-    $exportableFields = exportableFields('Grant');
+  static function getProfileFields() {
+    $exportableFields = self::exportableFields('Grant');
     
     $skipFields = array('grant_id', 'grant_contact_id');
     foreach ($skipFields as $field) {
       if (isset($exportableFields[$field])) {
-	unset($exportableFields[$field]);
+        unset($exportableFields[$field]);
       }
     }
     return $exportableFields;
   }
 
-  function &exportableFields() {
+  static function exportableFields() {
     $grantFields = array(
       'grant_status_id' => array(
       'title' => ts('Grant Status'),
@@ -450,7 +450,7 @@ GROUP BY ccg.id";
  * @static
  * @access public
  */
-  function getGrantFields() {
+  static function getGrantFields() {
     $grantFields = CRM_Grant_DAO_Grant::export();
     $grantFields = array_merge($grantFields, CRM_Core_OptionValue::getFields($mode = 'grant'));
        
