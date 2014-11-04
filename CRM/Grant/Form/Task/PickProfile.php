@@ -129,7 +129,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
       CRM_Core_Session::setStatus(ts("The grant selected for Batch Update does not have a corresponding profile. Please set up a profile for %1s and try again.", array(1 => $types)), ts('No Profile Available'), 'error');
       CRM_Utils_System::redirect($this->_userContext);
     }
-    $ufGroupElement = $this->add('select', 'uf_group_id', ts('Select Profile'), array('' => ts('- select profile -')) + $profiles, TRUE);
+    $this->add('select', 'uf_group_id', ts('Select Profile'), array('' => ts('- select profile -')) + $profiles, TRUE, array('class' => 'crm-select2 huge'));
     $this->assign('totalSelectedContacts', count($this->_grantIds));
     $this->addDefaultButtons(ts('Continue >>'));
   }
