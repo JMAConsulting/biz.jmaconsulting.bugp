@@ -120,7 +120,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     }
 
     //add Contact type profiles
-    $this->_grantTypes = array_merge($this->_grantTypes, array('Grant', 'Contact', 'Individual'));
+    $this->_grantTypes = array_merge($this->_grantTypes, array('Grant', 'Contact', 'Individual', 'Organization', 'Household'));
 
     $profiles = CRM_Core_BAO_UFGroup::getProfiles($this->_grantTypes);
 

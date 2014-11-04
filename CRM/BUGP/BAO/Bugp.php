@@ -373,14 +373,16 @@ GROUP BY ccg.id";
       if (!empty($grantTypes)) {
         $groupByClause[] = 'grant_type_id';
       }
-      $dao = CRM_Core_DAO::executeQuery("SELECT id FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
+      $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
         AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
       
-      if ($dao->N) {
+      $contactTypes = array();
+      if ($dao->fetch()) {
         $groupByClause[] = 'contact_type';
+        $contactTypes = explode(',', $dao->field_type);
       }
       
-      $query = 'SELECT cg.id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
+      $query = 'SELECT cg.id, cc.contact_type FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
       if (!empty($groupByClause)) {
         $query .= ' GROUP BY ' . implode(',', $groupByClause);
       }
@@ -388,7 +390,8 @@ GROUP BY ccg.id";
         return FALSE;
       }
       $result = CRM_Core_DAO::executeQuery($query);
-      if ($result->N > 1) {
+      $result->fetch();
+      if ($result->N > 1 || ($result->N == 1 && !in_array($result->contact_type, $contactTypes))) {
         return TRUE;      
       }
       else {
