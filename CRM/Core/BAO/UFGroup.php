@@ -1097,7 +1097,8 @@ class CRM_Core_BAO_UFGroup extends CRM_Core_DAO_UFGroup {
                 $fileURL = CRM_Core_BAO_CustomField::getFileURL($entityId,
                   $cfID,
                   NULL,
-                  $absolute
+                  $absolute,
+                  $additionalWhereClause
                 );
                 $params[$index] = $values[$index] = $fileURL['file_url'];
               }
@@ -1825,14 +1826,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
     );
 
     if (substr($fieldName, 0, 14) === 'state_province') {
-      $controlField = str_replace('state_province', 'country', $name);
-      if (isset($form->_fields[$controlField]) || in_array($controlField, $fieldsProcessed)) {
-          $form->addChainSelect($name, array('label' => $title, 'required' => $required));
-      }
-      else {
-        $options = CRM_Core_PseudoConstant::stateProvince();
-        $form->add('select', $name, $title, $options, $required && $options, $selectAttributes);
-      }
+      $form->addChainSelect($name, array('label' => $title, 'required' => $required));
       $config = CRM_Core_Config::singleton();
       if (!in_array($mode, array(
         CRM_Profile_Form::MODE_EDIT, CRM_Profile_Form::MODE_SEARCH)) &&
@@ -1855,14 +1849,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
     }
     elseif (substr($fieldName, 0, 6) === 'county') {
       if ($addressOptions['county']) {
-        $controlField = str_replace('county', 'state_province', $name);
-        if (isset($form->_fields[$controlField]) || in_array($controlField, $fieldsProcessed)) {
-          $form->addChainSelect($name, array('label' => $title, 'required' => $required));
-        }
-        else {
-          $options = CRM_Core_PseudoConstant::county();
-          $form->add('select', $name, $title, $options, $required && $options, $selectAttributes);
-        }
+        $form->addChainSelect($name, array('label' => $title, 'required' => $required));
       }
     }
     elseif (substr($fieldName, 0, 9) === 'image_URL') {
@@ -3150,9 +3137,10 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
       $groupTypeExpr .= implode(',', $coreTypes);
     }
     if ($subTypes) {
-      if (count($subTypes) > 1) {
-        throw new CRM_Core_Exception("Multiple subtype filtering is not currently supported by widget.");
-      }
+      //CRM-15427 Allow Multiple subtype filtering
+      //if (count($subTypes) > 1) {
+        //throw new CRM_Core_Exception("Multiple subtype filtering is not currently supported by widget.");
+      //}
       foreach ($subTypes as $subType => $subTypeIds) {
         $groupTypeExpr .= $delim . $subType . ':' . implode(':', $subTypeIds);
       }
@@ -3283,18 +3271,20 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
               $skipValue = FALSE;
 
               foreach ($formattedGroupTree as $tree) {
-                if (isset($tree['fields'][$customFieldDetails[0]]) && 'CheckBox' == CRM_Utils_Array::value('html_type', $tree['fields'][$customFieldDetails[0]])) {
-                  $skipValue = TRUE;
-                  $defaults['field'][$componentId][$name] = $customValue;
-                  break;
-                }
-                elseif (isset($tree['fields'][$customFieldDetails[0]]) && CRM_Utils_Array::value('data_type', $tree['fields'][$customFieldDetails[0]]) == 'Date') {
-                  $skipValue = TRUE;
+                if (!empty($tree['fields'][$customFieldDetails[0]])) {
+                  if ('CheckBox' == CRM_Utils_Array::value('html_type', $tree['fields'][$customFieldDetails[0]])) {
+                    $skipValue = TRUE;
+                    $defaults['field'][$componentId][$name] = $customValue;
+                    break;
+                  }
+                  elseif (CRM_Utils_Array::value('data_type', $tree['fields'][$customFieldDetails[0]]) == 'Date') {
+                    $skipValue = TRUE;
 
-                  // CRM-6681, $default contains formatted date, time values.
-                  $defaults[$fldName] = $customValue;
-                  if (!empty($defaults[$customKey . '_time'])) {
-                    $defaults['field'][$componentId][$name . '_time'] = $defaults[$customKey . '_time'];
+                    // CRM-6681, $default contains formatted date, time values.
+                    $defaults[$fldName] = $customValue;
+                    if (!empty($defaults[$customKey . '_time'])) {
+                      $defaults['field'][$componentId][$name . '_time'] = $defaults[$customKey . '_time'];
+                    }
                   }
                 }
               }
