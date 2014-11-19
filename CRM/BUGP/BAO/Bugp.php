@@ -205,20 +205,6 @@ Group By  componentId";
             }
             break;
 
-          case 'Autocomplete-Select':
-            if ($customFields[$customFieldId]['data_type'] == 'ContactReference') {
-              if (is_numeric($details[$name])) {
-                $defaults[$fldName . '_id'] = $details[$name];
-                $defaults[$fldName] = CRM_Core_DAO::getFieldValue('CRM_Contact_DAO_Contact', $details[$name], 'sort_name');
-              }
-            }
-            else {
-              $label = CRM_Core_BAO_CustomOption::getOptionLabel($customFieldId, $details[$name]);
-              $defaults[$fldName . '_id'] = $details[$name];
-              $defaults[$fldName] = $label;
-            }
-            break;
-
           case 'Select Date':
             // CRM-6681, set defult values according to date and time format (if any).
             $dateFormat = NULL;
@@ -379,7 +365,7 @@ GROUP BY ccg.id";
       $contactTypes = array();
       if ($dao->fetch()) {
         $groupByClause[] = 'contact_type';
-        $contactTypes = explode(',', $dao->field_type);
+        $contactTypes = $dao->field_type ? explode(',', $dao->field_type) : array();
       }
       
       $query = 'SELECT cg.id, cc.contact_type FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
@@ -391,7 +377,7 @@ GROUP BY ccg.id";
       }
       $result = CRM_Core_DAO::executeQuery($query);
       $result->fetch();
-      if ($result->N > 1 || ($result->N == 1 && !in_array($result->contact_type, $contactTypes))) {
+      if ($result->N > 1 || ($result->N == 1 && !empty($contactTypes) && !in_array($result->contact_type, $contactTypes))) {
         return TRUE;      
       }
       else {
@@ -400,7 +386,7 @@ GROUP BY ccg.id";
     }
   }
 
-  static function getProfileFields() {
+  static function getGrantFields() {
     $exportableFields = self::exportableFields('Grant');
     
     $skipFields = array('grant_id', 'grant_contact_id');
@@ -439,31 +425,28 @@ GROUP BY ccg.id";
 
   $fields = CRM_Grant_DAO_Grant::export();
   $fields = array_merge($fields, $grantFields,
-    CRM_Core_BAO_CustomField::getFieldsForImport('Grant')
+    CRM_Core_BAO_CustomField::getFieldsForImport('Grant'),
+    CRM_Financial_DAO_FinancialType::export()
   );
   return $fields;
   }
-
-/**
- * Function to get list of grant fields for profile
- * For now we only allow custom grant fields to be in
- * profile
- *
- * @return return the list of grant fields
- * @static
- * @access public
- */
-  static function getGrantFields() {
-    $grantFields = CRM_Grant_DAO_Grant::export();
-    $grantFields = array_merge($grantFields, CRM_Core_OptionValue::getFields($mode = 'grant'));
-       
-    $grantFields = array_merge($grantFields, CRM_Financial_DAO_FinancialType::export());
-    
-    foreach ($grantFields as $key => $var) {
-      $fields[$key] = $var;
+  
+  /**
+   * Function to check if related Grant extension is enabled/disabled
+   *
+   * return array of enabled extensions 
+   */
+  function checkRelatedExtensions() {
+    $relatedExtensions = array("'biz.jmaconsulting.grantapplications', 'biz.jmaconsulting.grantprograms'");
+    $enableDisable = NULL;
+    $sql = 'SELECT is_active FROM civicrm_extension WHERE full_name IN (' . implode(',', $relatedExtensions) . ')';
+    $dao = CRM_Core_DAO::excuteQuery($sql);
+    while ($dao->fetch()) {
+      if ($dao->is_active) {
+        return $dao->is_active;
+      }
+      $enableDisable = $dao->is_active;
     }
-
-    return array_merge($fields, CRM_Core_BAO_CustomField::getFieldsForImport('Grant'));
+    return $enableDisable;
   }
-
 }
