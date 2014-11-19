@@ -95,7 +95,7 @@ function bugp_civicrm_buildForm($formName, &$form) {
     
     $elements = & $form->getElement('field_name');
     
-    if ($elements) {
+    if ($elements && !array_key_exists('Grant', $elements->_options[0])) {
       $elements->_options[0]['Grant'] = 'Grant';
       $elements->_options[1]['Grant'] = $form->_mapperFields['Grant'];
           
