@@ -437,16 +437,9 @@ GROUP BY ccg.id";
    * return array of enabled extensions 
    */
   function checkRelatedExtensions() {
-    $relatedExtensions = array("'biz.jmaconsulting.grantapplications', 'biz.jmaconsulting.grantprograms'");
     $enableDisable = NULL;
-    $sql = 'SELECT is_active FROM civicrm_extension WHERE full_name IN (' . implode(',', $relatedExtensions) . ')';
-    $dao = CRM_Core_DAO::excuteQuery($sql);
-    while ($dao->fetch()) {
-      if ($dao->is_active) {
-        return $dao->is_active;
-      }
-      $enableDisable = $dao->is_active;
-    }
+    $sql = "SELECT is_active FROM civicrm_extension WHERE full_name IN ('biz.jmaconsulting.grantapplications')";
+    $enableDisable = CRM_Core_DAO::singleValueQuery($sql);
     return $enableDisable;
   }
 }
