@@ -29,6 +29,7 @@ function bugp_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function bugp_civicrm_uninstall() {
+  bug_enableDisableDeleteData(2);
   return _bugp_civix_civicrm_uninstall();
 }
 
@@ -36,6 +37,7 @@ function bugp_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function bugp_civicrm_enable() {
+  bug_enableDisableDeleteData(1);
   return _bugp_civix_civicrm_enable();
 }
 
@@ -43,6 +45,7 @@ function bugp_civicrm_enable() {
  * Implementation of hook_civicrm_disable
  */
 function bugp_civicrm_disable() {
+  bug_enableDisableDeleteData(0);
   return _bugp_civix_civicrm_disable();
 }
 
@@ -86,74 +89,92 @@ function bugp_civicrm_searchTasks($objectName, &$tasks) {
 function bugp_civicrm_buildForm($formName, &$form) {
   // Code to be done to avoid core editing
   if ($formName == "CRM_UF_Form_Field" && CRM_Core_Permission::access('CiviGrant')) {
-    $grantFields = CRM_BUGP_BAO_Bugp::getProfileFields();
-    $fields['Grant'] = $grantFields;
-    // Add the grant fields to the form
-    $originalFields = $form->getVar('_fields');
-    $form->setVar('_fields', array_merge(CRM_BUGP_BAO_Bugp::exportableFields('Grant'), $originalFields));
-    $originalSelect = $form->getVar('_selectFields');
-
-    foreach ($fields as $key => $value) {
-      foreach ($value as $key1 => $value1) {
-        //CRM-2676, replacing the conflict for same custom field name from different custom group.
-        if ($customFieldId = CRM_Core_BAO_CustomField::getKeyID($key1)) {
-          $customGroupId = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomField', $customFieldId, 'custom_group_id');
-          $customGroupName = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_CustomGroup', $customGroupId, 'title');
-          $mapperFields[$key][$key1] = $value1['title'] . ' :: ' . $customGroupName;
-          $selectFields[$key][$key1] = $value1['title'];
-        }
-        else {
-          $mapperFields[$key][$key1] = $value1['title'];
-          $selectFields[$key][$key1] = $value1['title'];
-        }
-        $hasLocationTypes[$key][$key1] = CRM_Utils_Array::value('hasLocationType', $value1);
-      }
+    if (!$form->elementExists('field_name')) {
+      return NULL;
     }
-    if (!empty($selectFields['Grant'])) {
-      $form->setVar('_selectFields', array_merge($selectFields['Grant'], $originalSelect));
+    
+    $elements = & $form->getElement('field_name');
+    
+    if ($elements) {
+      $elements->_options[0]['Grant'] = 'Grant';
+      $elements->_options[1]['Grant'] = $form->_mapperFields['Grant'];
+          
+      $elements->_elements[0]->_options[] = array(
+        'text' => 'Grant',
+        'attr' => array('value' => 'Grant')
+      );
+      
+      $elements->_js .= 'hs_field_name_Grant = ' . json_encode($form->_mapperFields['Grant']) . ';';
     }
-    if(!empty($noSearchable)) {
-      $form->assign('noSearchable', $noSearchable);
-    }
-    $grantArray = array(
-      'text' => 'Grant',
-      'attr' => array('value' => 'Grant')
-    );
-
-    foreach ($form->_elements as $eleKey => $eleVal) {
-      foreach ($eleVal as $optionKey => $optionVal) {
-        if ($optionKey == '_options') {
-          $form->_elements[$eleKey]->_options[0]['Grant'] = 'Grant';
-          $form->_elements[$eleKey]->_options[1]['Grant'] = $mapperFields['Grant'];
-        }
-        if ($optionKey == '_elements') {
-          $form->_elements[$eleKey]->_elements[0]->_options[] = $grantArray;
-        } 
-        if ($optionKey == '_js') {
-          $form->_elements[$eleKey]->_js .= 'hs_field_name_Grant = ' . json_encode($mapperFields['Grant']) . ';';
-        }
-      }
-    } 
+    
+    // set default mapper when updating profile fields
     if ($form->_defaultValues && array_key_exists('field_name', $form->_defaultValues) 
       && $form->_defaultValues['field_name'][0] == 'Grant') {
       $defaults['field_name'] = $form->_defaultValues['field_name'];
       $form->setDefaults($defaults);
     }
   }
-  
-  if ($formName == 'CRM_Grant_Form_Task_Batch') {
-    foreach ($form->_fields as $key => $value) {
-      if ($value['field_type'] == 'Contact' && CRM_Utils_Array::value('data_type', $value) == 'ContactReference') {
-        foreach ($form->getVar('_grantIds') as $grantId) {
-          $fldName[] = "field[$grantId][$key]";
-        }
-        foreach ($fldName as $name) {
-          if (array_key_exists($name.'_id', $form->_defaultValues)) {
-            $form->_defaultValues[$name] = $form->_defaultValues[$name.'_id'];
-          }
-        }
-      }
+}
+
+/*
+ * function to perform enable, disable, un-install actions
+ *
+ */
+function bug_enableDisableDeleteData($action) {
+  if ($action != 1) {
+    $enableDisableDeleteData = CRM_BUGP_BAO_Bugp::checkRelatedExtensions();
+    if ($enableDisableDeleteData) {
+      return FALSE;
     }
-    $form->setDefaults($form->_defaultValues);
+    elseif($enableDisableDeleteData == 0) {
+      $action = 0;
+    }    
   }
+
+  if ($action < 2) { 
+    CRM_Core_DAO::executeQuery(
+      "UPDATE civicrm_uf_group SET is_active = %1 WHERE group_type LIKE '%Grant%'", 
+      array(
+        1 => array($action, 'Integer'),
+      )
+    ); 
+    
+  }
+  else {
+    CRM_Core_DAO::executeQuery(
+      "DELETE uj.*, uf.*, g.* FROM civicrm_uf_group g
+       LEFT JOIN civicrm_uf_join uj ON uj.uf_group_id = g.id
+       LEFT JOIN civicrm_uf_field uf ON uf.uf_group_id = g.id
+       WHERE g.group_type LIKE '%Grant%';"
+    );
+  }  
+  
+  bugp_addRemoveMenu($action);
+  
+}
+
+/*
+ * function to enable / disable component
+ *
+ */
+function bugp_addRemoveMenu($enable) {
+  $config = CRM_Core_Config::singleton();
+  
+  $params['enableComponents'] = $config->enableComponents;
+  if ($enable) {
+    if (array_search('CiviGrant', $config->enableComponents)) {
+      return NULL;
+    }
+    $params['enableComponents'][] = 'CiviGrant';
+  }
+  else {
+    $key = array_search('CiviGrant', $params['enableComponents']);
+    if ($key) {
+      unset($params['enableComponents'][$key]);
+    }
+  }
+  
+  CRM_Core_BAO_Setting::setItem($params['enableComponents'],
+    CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,'enable_components');
+  
 }
