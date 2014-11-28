@@ -1,5 +1,8 @@
 <?php
 
+define('PROPOSAL', 'custom_8');
+define('ID', 8);
+
 require_once 'bugp.civix.php';
 
 /**
@@ -177,4 +180,108 @@ function bugp_addRemoveMenu($enable) {
   CRM_Core_BAO_Setting::setItem($params['enableComponents'],
     CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,'enable_components');
   
+}
+
+/**
+ * Implementation of hook_civicrm_post
+ */
+function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  // For individual grants MRG-6
+  if ($objectName == 'Grant' && $op == 'create') {
+    // Add value for proposal
+
+    // Calculate fiscal date
+    $date = date('m/d/y', strtotime($objectRef->application_received_date));
+    $fyStart = "7/1";
+    $fyEnd = "6/30";
+    $type = '';
+    $fiscalDate = calculateFiscalYearForDate($date, $fyStart, $fyEnd);
+    $grantTypes = CRM_Core_OptionGroup::values('grant_type');
+
+    // Calculate grant type
+    $mapping = array(
+      'Board Advised' => 'BA',
+      'Critical Response' => 'CR',
+      'Donor Advised' => 'DA',
+      'Donor Pool' => 'DP',
+      'Funding Cycle' => 'FC',
+      'Funding Cycle Fall' => 'FF',
+      'Funding Cycle Spring' => 'FS',
+      'McCay Fund Grant' => 'MC',
+      'Peace Action Fund' => 'PA',
+      'Project Connect-TT' => 'PC',
+      'Project Connect-NA' => 'PC',
+      'Peace Fund Collaborative' => 'PC',
+      'McCay Fund Grant' => 'PF',
+      'Technical Assistance' => 'TA',
+      'Technology Fund' => 'TF',
+      'Technology Fund-TI' => 'TI',
+      'Technology Fund' => 'TI',
+      'Travel' => 'TR',
+      'WTO Response Fund' => 'WT',
+    );
+    if (isset($grantTypes[$objectRef->grant_type_id])) {
+      $type = $mapping[$grantTypes[$objectRef->grant_type_id]];
+      if (in_array($grantTypes[$objectRef->grant_type_id], array('Project Connect-TT', 'Project Connect-NA', 'Peace Fund Collaborative'))) {
+        $type = 'PC';
+      }
+      if (in_array($grantTypes[$objectRef->grant_type_id], array('Technology Fund-TI', 'Technology Fund'))) {
+        $type = 'TI';
+      }
+    }
+
+    $proposal = array(
+      'entity_id' =>  $objectId,
+      PROPOSAL => (string)$fiscalDate.'-'.$type.'-'.$objectId,
+    );
+    civicrm_api3('CustomValue', 'create', $proposal);
+  }
+}
+
+function calculateFiscalYearForDate($inputDate, $fyStart, $fyEnd) {
+  $date = strtotime($inputDate);
+  $inputyear = strftime('%y',$date);
+  
+  $fystartdate = strtotime($fyStart.'/'.$inputyear);
+  $fyenddate = strtotime($fyEnd.'/'.$inputyear);
+  
+  if ($date <= $fyenddate){
+    $fy = intval($inputyear);
+  }
+  else{
+    $fy = intval(intval($inputyear) + 1);
+  }
+  
+  return $fy;
+}
+
+function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) {
+  if ($objectName == 'grant') {
+    $remove = array(
+      'grant_amount_total' => 'Requested',
+      'grant_application_received_date' => 'Application Received',
+      'grant_report_received' => 'Report Received', 
+      'money_transfer_date' => 'Money Transferred',
+    );
+    foreach ($headers as $key => $value) {
+      if (isset($value['name']) && in_array($value['name'], $remove)) {
+        unset($headers[$key]);
+      }
+    }
+    $headers[6] = array(
+      'name' => 'Proposal Number', 
+    );
+    ksort($headers);
+    foreach ($rows as $key => $value) {
+      $rows[$key] = array_diff_key($value, $remove);
+      $custom = array('entity_id' => $value['grant_id'],'entity_table' => 'civicrm_grant');
+      $c = civicrm_api3('CustomValue', 'get', $custom);
+      if (isset($c['values'][ID])) {
+        $rows[$key][PROPOSAL] = $c['values'][ID]['latest'];
+      }
+      else { 
+        $rows[$key][PROPOSAL] = NULL;
+      }
+    }
+  }
 }
