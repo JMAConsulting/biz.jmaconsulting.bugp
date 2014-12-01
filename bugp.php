@@ -1,7 +1,7 @@
 <?php
 
-define('PROPOSAL', 'custom_8');
-define('ID', 8);
+define('PROPOSAL', 'custom_197');
+define('ID', 197);
 
 require_once 'bugp.civix.php';
 
@@ -78,8 +78,8 @@ function bugp_civicrm_managed(&$entities) {
 function bugp_civicrm_searchTasks($objectName, &$tasks) {
   if ($objectName == 'grant') {
     foreach ($tasks as $key => $value) {
-      if ($value['title'] == 'Update Grants') {
-        $tasks[$key]['title'] = 'Batch Update Grants via Profile';
+      if ($value['title'] == 'Update Proposals') {
+        $tasks[$key]['title'] = 'Batch Update Proposals via Profile';
         $tasks[$key]['class'] = array( 
           'CRM_Grant_Form_Task_PickProfile',
           'CRM_Grant_Form_Task_Batch',
