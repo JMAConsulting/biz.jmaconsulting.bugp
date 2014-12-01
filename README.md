@@ -1,6 +1,14 @@
 biz.jmaconsulting.bugp
 =====================
 
+=========================================
+
+IMPORTANT!
+
+For the MRG site, please change the Proposal field (custom_197) to View Only. This is essential for automatic update when the grant is saved.
+ 
+=========================================
+
 Batch Update of Grants via Profile
 ----------------------------------
 
