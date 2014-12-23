@@ -436,7 +436,7 @@ GROUP BY ccg.id";
    *
    * return array of enabled extensions 
    */
-  function checkRelatedExtensions() {
+  static function checkRelatedExtensions() {
     $enableDisable = NULL;
     $sql = "SELECT is_active FROM civicrm_extension WHERE full_name IN ('biz.jmaconsulting.grantapplications')";
     $enableDisable = CRM_Core_DAO::singleValueQuery($sql);
