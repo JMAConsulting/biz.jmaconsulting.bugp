@@ -202,37 +202,36 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     $mapping = array(
       'Board Advised' => 'BA',
       'Critical Response' => 'CR',
-      'Donor Advised' => 'DA',
-      'Donor Pool' => 'DP',
+      'Donor Advised from Long-Term DA Fund' => 'DA',
+      'Donor Advised from Short-Term DA Fund' => 'DP',
       'Funding Cycle' => 'FC',
-      'Funding Cycle Fall' => 'FF',
-      'Funding Cycle Spring' => 'FS',
-      'McCay Fund Grant' => 'MC',
+      'Funding Cycle - Fall' => 'FF',
+      'Funding Cycle - Spring' => 'FS',
+      'McCay Fund' => 'MC',
       'Peace Action Fund' => 'PA',
-      'Project Connect-TT' => 'PC',
-      'Project Connect-NA' => 'PC',
-      'Peace Fund Collaborative' => 'PC',
-      'McCay Fund Grant' => 'PF',
+      'Project Connect - TT' => 'PC',
+      'Project Connect - NA' => 'PC',
+      'Peace Fund Collaboration' => 'PC',
       'Technical Assistance' => 'TA',
       'Technology Fund' => 'TF',
-      'Technology Fund-TI' => 'TI',
-      'Technology Fund' => 'TI',
+      'Technology Fund - TI' => 'TI',
+      'Technology Fund - NA' => 'TI',
       'Travel' => 'TR',
       'WTO Response Fund' => 'WT',
     );
     if (isset($grantTypes[$objectRef->grant_type_id])) {
       $type = $mapping[$grantTypes[$objectRef->grant_type_id]];
-      if (in_array($grantTypes[$objectRef->grant_type_id], array('Project Connect-TT', 'Project Connect-NA', 'Peace Fund Collaborative'))) {
+      if (in_array($grantTypes[$objectRef->grant_type_id], array('Project Connect - TT', 'Project Connect - NA', 'Peace Fund Collaboration'))) {
         $type = 'PC';
       }
-      if (in_array($grantTypes[$objectRef->grant_type_id], array('Technology Fund-TI', 'Technology Fund'))) {
+      if (in_array($grantTypes[$objectRef->grant_type_id], array('Technology Fund - TI', 'Technology Fund - NA', 'Technology Fund'))) {
         $type = 'TI';
       }
     }
 
     $proposal = array(
       'entity_id' =>  $objectId,
-      PROPOSAL => (string)$fiscalDate.'-'.$type.'-'.$objectId,
+      PROPOSAL => (string)$fiscalDate.$type.$objectId,
     );
     civicrm_api3('CustomValue', 'create', $proposal);
   }
