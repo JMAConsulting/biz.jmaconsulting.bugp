@@ -123,6 +123,16 @@ function bugp_civicrm_buildForm($formName, &$form) {
       'template' => 'CRM/Grant/CustomGrant.tpl',
     ));
   }
+
+  if ($formName == 'CRM_Grant_Form_Search') {
+    $form->addSelect('grant_type_id',
+      array('entity' => 'grant', 'multiple' => 'multiple', 'option_url' => NULL, 'placeholder' => ts('- any -'))
+    );
+
+    $form->addSelect('grant_status_id',
+      array('entity' => 'grant', 'multiple' => 'multiple', 'option_url' => NULL, 'placeholder' => ts('- any -'))
+    );
+  }
 }
 
 /*
