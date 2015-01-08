@@ -117,6 +117,12 @@ function bugp_civicrm_buildForm($formName, &$form) {
       $form->setDefaults($defaults);
     }
   }
+  
+  if ($formName == 'CRM_Grant_Form_Grant' && $form->getVar('_id') == '') {
+    CRM_Core_Region::instance('page-body')->add(array(
+      'template' => 'CRM/Grant/CustomGrant.tpl',
+    ));
+  }
 }
 
 /*
@@ -233,7 +239,8 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       'entity_id' =>  $objectId,
       PROPOSAL => (string)$fiscalDate.$type.$objectId,
     );
-    civicrm_api3('CustomValue', 'create', $proposal);
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('proposalValue', $proposal);
   }
 }
 
@@ -281,6 +288,15 @@ function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
       else { 
         $rows[$key][PROPOSAL] = NULL;
       }
+    }
+  }
+}
+
+function bugp_civicrm_postProcess($formName, &$form) {
+  if ($formName == 'CRM_Grant_Form_Grant' && $form->getVar('_id') == '') {
+    $smarty = CRM_Core_Smarty::singleton()->get_template_vars('proposalValue');
+    if ($smarty) {
+      civicrm_api3('CustomValue', 'create', $smarty);
     }
   }
 }
