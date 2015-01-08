@@ -214,6 +214,7 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       'Funding Cycle - Fall' => 'FF',
       'Funding Cycle - Spring' => 'FS',
       'McCay Fund' => 'MC',
+      'McCay Fund - Peace Fund' => 'PF',
       'Peace Action Fund' => 'PA',
       'Project Connect - TT' => 'PC',
       'Project Connect - NA' => 'PC',
