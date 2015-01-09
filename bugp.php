@@ -25,6 +25,7 @@ function bugp_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function bugp_civicrm_install() {
+  bugp_addRemoveMenu(TRUE);
   return _bugp_civix_civicrm_install();
 }
 
