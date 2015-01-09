@@ -337,53 +337,72 @@ Group By  componentId";
     $sql = "SELECT ccg.extends_entity_column_value FROM civicrm_uf_field cuf
 INNER JOIN civicrm_custom_field ccf ON ccf.id = REPLACE(cuf.field_name, 'custom_', '')
 INNER JOIN civicrm_custom_group ccg ON ccg.id = ccf.custom_group_id
-WHERE cuf.uf_group_id = {$profileId} AND ccg.extends LIKE 'Grant'
+WHERE cuf.uf_group_id = {$profileId} AND ccg.extends LIKE 'Grant' and cuf.is_active = 1
 GROUP BY ccg.id";
     $dao = CRM_Core_DAO::executeQuery($sql);
-    $grantTypes = array();
+    $grantTypes = $commonGrantType = $gts = array();
     while ($dao->fetch()) {
       if ($dao->extends_entity_column_value) {
         $gTypes = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, $dao->extends_entity_column_value));
         if (count($gTypes) == $totalGrantType) {
           continue;
         }
+        $gts[] = $gTypes;
+        $commonGrantType = array_intersect(array_merge($commonGrantType, $grantTypes), $gTypes);
         $grantTypes = array_merge($grantTypes, $gTypes);
       }
     } 
     
-    if (count($grantTypes) > 1) {
-      return TRUE;
+    
+    $groupByClause = array();
+    if (!empty($grantTypes)) {
+      $groupByClause[] = 'grant_type_id';
+    }
+    $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
+      AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
+    
+    $contactTypes = array();
+    if ($dao->fetch()) {
+      $groupByClause[] = 'contact_type';
+      $contactTypes = $dao->field_type ? explode(',', $dao->field_type) : array();
+    }
+    
+    $query = 'SELECT cg.id, cc.contact_type, cg.grant_type_id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
+    if (!empty($groupByClause)) {
+      $query .= ' GROUP BY ' . implode(',', $groupByClause);
     }
     else {
-      $groupByClause = array();
+      return FALSE;
+    }
+    $result = CRM_Core_DAO::executeQuery($query);
+    
+    if ($result->N > 1) {
+      if (count(array_unique($gts, SORT_REGULAR)) > 1) {
+        return TRUE;
+      }
+      $ignoreFlag = FALSE;
       if (!empty($grantTypes)) {
-        $groupByClause[] = 'grant_type_id';
+        $ignoreFlag = TRUE;
+        while ($result->fetch()) {
+          if (!in_array($result->grant_type_id, $grantTypes)) {
+            $ignoreFlag = FALSE;
+            break;          
+          }
+        }
       }
-      $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
-        AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
-      
-      $contactTypes = array();
-      if ($dao->fetch()) {
-        $groupByClause[] = 'contact_type';
-        $contactTypes = $dao->field_type ? explode(',', $dao->field_type) : array();
-      }
-      
-      $query = 'SELECT cg.id, cc.contact_type FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
-      if (!empty($groupByClause)) {
-        $query .= ' GROUP BY ' . implode(',', $groupByClause);
-      }
-      else {
-        return FALSE;
-      }
-      $result = CRM_Core_DAO::executeQuery($query);
-      $result->fetch();
-      if ($result->N > 1 || ($result->N == 1 && !empty($contactTypes) && !in_array($result->contact_type, $contactTypes))) {
-        return TRUE;      
-      }
-      else {
-        return FALSE;
+      if (!$ignoreFlag) {
+        return TRUE;
       }
     }
+    elseif ($result->N == 1){
+      $result->fetch();
+      if ((!empty($contactTypes) && !in_array($result->contact_type, $contactTypes))
+        || (!empty($grantTypes) && (!in_array($result->grant_type_id, $grantTypes) || (!empty($commonGrantType) && !in_array($result->grant_type_id, $commonGrantType)))))
+      {
+        return TRUE;      
+      } 
+    }
+    return FALSE;
   }
 
   static function getGrantFields() {
