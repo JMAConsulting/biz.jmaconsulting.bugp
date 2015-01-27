@@ -63,6 +63,9 @@
     <td class="crm-grant-grant_status">{$row.grant_status}</td>
     <td class="crm-grant-grant_type">{$row.grant_type}</td>
     <td class="right crm-grant-grant_amount_granted">{$row.grant_amount_granted|crmMoney}</td>
+    <td class="crm-grant-grant_decision_date">{$row.grant_decision_date}</td>
+    <td class="crm-grant-grant_short_description">{$row.custom_126}</td>
+    <td class="crm-grant-grant_long_description">{$row.custom_127}</td>
     <td>{$row.action|replace:'xx':$row.grant_id}</td>
    </tr>
   {/foreach}

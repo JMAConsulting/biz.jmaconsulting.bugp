@@ -1,7 +1,8 @@
 <?php
 
-define('PROPOSAL', 'custom_197');
-define('ID', 197);
+define('PROPOSAL', 197);
+define('SHORTDESC', 126);
+define('LONGDESC', 127);
 
 require_once 'bugp.civix.php';
 
@@ -287,16 +288,31 @@ function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
       }
     }
     array_splice($headers, 2, 0, array(array('name' => 'Proposal Number')));
+    array_splice($headers, 6, 0, array(array('name' => 'Grant Decision Date')));
+    array_splice($headers, 7, 0, array(array('name' => 'Short Grant Description')));
+    array_splice($headers, 8, 0, array(array('name' => 'Full Grant Description')));
     ksort($headers);
     foreach ($rows as $key => $value) {
       $rows[$key] = array_diff_key($value, $remove);
       $custom = array('entity_id' => $value['grant_id'],'entity_table' => 'civicrm_grant');
       $c = civicrm_api3('CustomValue', 'get', $custom);
-      if (isset($c['values'][ID])) {
-        $rows[$key][PROPOSAL] = $c['values'][ID]['latest'];
+      if (isset($c['values'][PROPOSAL])) {
+        $rows[$key]['custom_' . PROPOSAL] = $c['values'][PROPOSAL]['latest'];
       }
       else { 
-        $rows[$key][PROPOSAL] = NULL;
+        $rows[$key]['custom_' . PROPOSAL] = NULL;
+      }
+      $rows[$key]['grant_decision_date'] = CRM_Core_DAO::getFieldValue('CRM_Grant_DAO_Grant', $value['grant_id'], 'decision_date');
+      if (isset($c['values'][SHORTDESC])) {
+        $rows[$key]['custom_' . SHORTDESC] = $c['values'][SHORTDESC]['latest'];
+      }
+      if (isset($c['values'][LONGDESC])) {
+        $max = 32;
+        if (strlen($c['values'][LONGDESC]['latest']) > $max) {
+          $offset = ($max - 3) - strlen($c['values'][LONGDESC]['latest']);
+          $c['values'][LONGDESC]['latest'] = substr($c['values'][LONGDESC]['latest'], 0, strrpos($c['values'][LONGDESC]['latest'], ' ', $offset)) . '...';
+        }
+        $rows[$key]['custom_' . LONGDESC] = $c['values'][LONGDESC]['latest'];
       }
     }
   }
