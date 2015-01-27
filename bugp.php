@@ -286,9 +286,7 @@ function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
         unset($headers[$key]);
       }
     }
-    $headers[6] = array(
-      'name' => 'Proposal Number', 
-    );
+    array_splice($headers, 2, 0, array(array('name' => 'Proposal Number')));
     ksort($headers);
     foreach ($rows as $key => $value) {
       $rows[$key] = array_diff_key($value, $remove);
