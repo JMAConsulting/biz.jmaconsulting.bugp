@@ -275,7 +275,8 @@ function calculateFiscalYearForDate($inputDate, $fyStart, $fyEnd) {
 }
 
 function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) {
-  if ($objectName == 'grant') {
+  if ($objectName == 'grant' && !CRM_Core_Smarty::singleton()->get_template_vars('contactId')) {
+    CRM_Core_Smarty::singleton()->assign('isCustom', TRUE);
     $remove = array(
       'grant_amount_total' => 'Requested',
       'grant_application_received_date' => 'Application Received',
