@@ -250,7 +250,7 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 
     $proposal = array(
       'entity_id' =>  $objectId,
-      PROPOSAL => (string)$fiscalDate.$type.$objectId,
+      'custom_' . PROPOSAL => (string)$fiscalDate.$type.$objectId,
     );
     $smarty = CRM_Core_Smarty::singleton();
     $smarty->assign('proposalValue', $proposal);
