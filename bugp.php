@@ -121,6 +121,8 @@ function bugp_civicrm_buildForm($formName, &$form) {
   }
   
   if ($formName == 'CRM_Grant_Form_Grant' && $form->getVar('_id') == '') {
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('isHide', TRUE);
     CRM_Core_Region::instance('page-body')->add(array(
       'template' => 'CRM/Grant/CustomGrant.tpl',
     ));
