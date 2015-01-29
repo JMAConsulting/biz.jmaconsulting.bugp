@@ -277,7 +277,7 @@ function calculateFiscalYearForDate($inputDate, $fyStart, $fyEnd) {
 }
 
 function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) {
-  if ($objectName == 'grant') {
+  if ($objectName == 'grant' ) {
     $remove = array(
       'grant_amount_total' => 'Requested',
       'grant_application_received_date' => 'Application Received',
@@ -294,6 +294,12 @@ function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
     array_splice($headers, 7, 0, array(array('name' => 'Short Grant Description')));
     array_splice($headers, 8, 0, array(array('name' => 'Full Grant Description')));
     ksort($headers);
+    if (CRM_Core_Smarty::singleton()->get_template_vars('contactId')) {
+      unset($headers[2]);
+      unset($headers[4]);
+      array_splice($headers, 0, 0, array(array('name' => 'Proposal Number')));
+      array_splice($headers, 7, 0, array(array('desc' => 'Actions')));
+    }
     foreach ($rows as $key => $value) {
       $rows[$key] = array_diff_key($value, $remove);
       $custom = array('entity_id' => $value['grant_id'],'entity_table' => 'civicrm_grant');
