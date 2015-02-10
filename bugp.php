@@ -128,7 +128,7 @@ function bugp_civicrm_buildForm($formName, &$form) {
     ));
   }
 
-  if ($formName == 'CRM_Grant_Form_Search') {
+  if ($formName == 'CRM_Grant_Form_Search' || ($formName == 'CRM_Contact_Form_Search_Advanced' && $form->_searchPane == 'CiviGrant')) {
     $form->addSelect('grant_type_id',
       array('entity' => 'grant', 'multiple' => 'multiple', 'option_url' => NULL, 'placeholder' => ts('- any -'))
     );
@@ -209,7 +209,6 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   // For individual grants MRG-6
   if ($objectName == 'Grant' && $op == 'create') {
     // Add value for proposal
-
     // Calculate fiscal date
     $date = date('m/d/y', strtotime($objectRef->application_received_date));
     $fyStart = "7/1";
