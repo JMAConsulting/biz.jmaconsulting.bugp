@@ -221,8 +221,8 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     $mapping = array(
       'Board Advised' => 'BA',
       'Critical Response' => 'CR',
-      'Donor Advised from Long-Term DA Fund' => 'DA',
-      'Donor Advised from Short-Term DA Fund' => 'DP',
+      'Donor Advised from Long-Term DA Fund' => 'DP',
+      'Donor Advised from Short-Term DA Fund' => 'DA',
       'Funding Cycle' => 'FC',
       'Funding Cycle - Fall' => 'FF',
       'Funding Cycle - Spring' => 'FS',
@@ -238,6 +238,7 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       'Technology Fund - NA' => 'TI',
       'Travel' => 'TR',
       'WTO Response Fund' => 'WT',
+      'Capacity Building' => 'CB',
     );
     if (isset($grantTypes[$objectRef->grant_type_id])) {
       $type = $mapping[$grantTypes[$objectRef->grant_type_id]];
