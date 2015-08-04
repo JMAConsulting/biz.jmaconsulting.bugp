@@ -1,5 +1,9 @@
 <?php
 
+define('PROPOSAL', 197);
+define('SHORTDESC', 126);
+define('LONGDESC', 127);
+
 require_once 'bugp.civix.php';
 
 /**
@@ -115,6 +119,24 @@ function bugp_civicrm_buildForm($formName, &$form) {
       $form->setDefaults($defaults);
     }
   }
+  
+  if ($formName == 'CRM_Grant_Form_Grant' && $form->getVar('_id') == '') {
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('isHide', TRUE);
+    CRM_Core_Region::instance('page-body')->add(array(
+      'template' => 'CRM/Grant/CustomGrant.tpl',
+    ));
+  }
+
+  if (in_array ($formName, array('CRM_Grant_Form_Search', 'CRM_Contact_Form_Search_Advanced'))) {
+    $form->addSelect('grant_type_id',
+      array('entity' => 'grant', 'multiple' => 'multiple', 'option_url' => NULL, 'placeholder' => ts('- any -'))
+    );
+
+    $form->addSelect('grant_status_id',
+      array('entity' => 'grant', 'multiple' => 'multiple', 'option_url' => NULL, 'placeholder' => ts('- any -'))
+    );
+  }
 }
 
 /*
@@ -178,4 +200,137 @@ function bugp_addRemoveMenu($enable) {
   CRM_Core_BAO_Setting::setItem($params['enableComponents'],
     CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,'enable_components');
   
+}
+
+/**
+ * Implementation of hook_civicrm_post
+ */
+function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  // For individual grants MRG-6
+  if ($objectName == 'Grant' && $op == 'create') {
+    // Add value for proposal
+    // Calculate fiscal date
+    $date = date('m/d/y', strtotime($objectRef->application_received_date));
+    $fyStart = "7/1";
+    $fyEnd = "6/30";
+    $type = '';
+    $fiscalDate = calculateFiscalYearForDate($date, $fyStart, $fyEnd);
+    $grantTypes = CRM_Core_OptionGroup::values('grant_type');
+
+    // Calculate grant type
+    $mapping = array(
+      'Board Advised' => 'BA',
+      'Critical Response' => 'CR',
+      'Donor Advised from Long-Term DA Fund' => 'DP',
+      'Donor Advised from Short-Term DA Fund' => 'DA',
+      'Funding Cycle' => 'FC',
+      'Funding Cycle - Fall' => 'FF',
+      'Funding Cycle - Spring' => 'FS',
+      'McCay Fund' => 'MC',
+      'McCay Fund - Peace Fund' => 'PF',
+      'Peace Action Fund' => 'PA',
+      'Project Connect - TT' => 'PC',
+      'Project Connect - NA' => 'PC',
+      'Peace Fund Collaboration' => 'PC',
+      'Technical Assistance' => 'TA',
+      'Technology Fund' => 'TF',
+      'Technology Fund - TI' => 'TI',
+      'Technology Fund - NA' => 'TI',
+      'Travel' => 'TR',
+      'WTO Response Fund' => 'WT',
+      'Capacity Building' => 'CB',
+    );
+    if (isset($grantTypes[$objectRef->grant_type_id])) {
+      $type = $mapping[$grantTypes[$objectRef->grant_type_id]];
+      if (in_array($grantTypes[$objectRef->grant_type_id], array('Project Connect - TT', 'Project Connect - NA', 'Peace Fund Collaboration'))) {
+        $type = 'PC';
+      }
+      if (in_array($grantTypes[$objectRef->grant_type_id], array('Technology Fund - TI', 'Technology Fund - NA', 'Technology Fund'))) {
+        $type = 'TI';
+      }
+    }
+
+    $proposal = array(
+      'entity_id' =>  $objectId,
+      'custom_' . PROPOSAL => (string)$fiscalDate.$type.$objectId,
+    );
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('proposalValue', $proposal);
+  }
+}
+
+function calculateFiscalYearForDate($inputDate, $fyStart, $fyEnd) {
+  $date = strtotime($inputDate);
+  $inputyear = strftime('%y',$date);
+  
+  $fystartdate = strtotime($fyStart.'/'.$inputyear);
+  $fyenddate = strtotime($fyEnd.'/'.$inputyear);
+  
+  if ($date <= $fyenddate){
+    $fy = intval($inputyear);
+  }
+  else{
+    $fy = intval(intval($inputyear) + 1);
+  }
+  
+  return $fy;
+}
+
+function bugp_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) {
+  if ($objectName == 'grant') {
+    $remove = array(
+      'grant_amount_total' => 'Requested',
+      'grant_application_received_date' => 'Application Received',
+      'grant_report_received' => 'Report Received', 
+      'money_transfer_date' => 'Money Transferred',
+    );
+    foreach ($headers as $key => $value) {
+      if (isset($value['name']) && in_array($value['name'], $remove)) {
+        unset($headers[$key]);
+      }
+    }
+    array_splice($headers, 2, 0, array(array('name' => 'Proposal Number')));
+    array_splice($headers, 6, 0, array(array('name' => 'Grant Decision Date')));
+    array_splice($headers, 7, 0, array(array('name' => 'Short Grant Description')));
+    array_splice($headers, 8, 0, array(array('name' => 'Full Grant Description')));
+    ksort($headers);
+    if (CRM_Core_Smarty::singleton()->get_template_vars('contactId')) {
+      unset($headers[2]);
+      unset($headers[4]);
+      array_splice($headers, 0, 0, array(array('name' => 'Proposal Number')));
+      array_splice($headers, 7, 0, array(array('desc' => 'Actions')));
+    }
+    foreach ($rows as $key => $value) {
+      $rows[$key] = array_diff_key($value, $remove);
+      $custom = array('entity_id' => $value['grant_id'],'entity_table' => 'civicrm_grant');
+      $c = civicrm_api3('CustomValue', 'get', $custom);
+      if (isset($c['values'][PROPOSAL])) {
+        $rows[$key]['custom_' . PROPOSAL] = $c['values'][PROPOSAL]['latest'];
+      }
+      else { 
+        $rows[$key]['custom_' . PROPOSAL] = NULL;
+      }
+      $rows[$key]['grant_decision_date'] = CRM_Core_DAO::getFieldValue('CRM_Grant_DAO_Grant', $value['grant_id'], 'decision_date');
+      if (isset($c['values'][SHORTDESC])) {
+        $rows[$key]['custom_' . SHORTDESC] = $c['values'][SHORTDESC]['latest'];
+      }
+      if (isset($c['values'][LONGDESC])) {
+        $max = 32;
+        if (strlen($c['values'][LONGDESC]['latest']) > $max) {
+          $offset = ($max - 3) - strlen($c['values'][LONGDESC]['latest']);
+          $c['values'][LONGDESC]['latest'] = substr($c['values'][LONGDESC]['latest'], 0, strrpos($c['values'][LONGDESC]['latest'], ' ', $offset)) . '...';
+        }
+        $rows[$key]['custom_' . LONGDESC] = $c['values'][LONGDESC]['latest'];
+      }
+    }
+  }
+}
+
+function bugp_civicrm_postProcess($formName, &$form) {
+  if ($formName == 'CRM_Grant_Form_Grant' && $form->getVar('_id') == '') {
+    $smarty = CRM_Core_Smarty::singleton()->get_template_vars('proposalValue');
+    if ($smarty) {
+      civicrm_api3('CustomValue', 'create', $smarty);
+    }
+  }
 }
