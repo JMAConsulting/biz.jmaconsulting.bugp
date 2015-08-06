@@ -484,7 +484,7 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
             $typeName = 'Case';
             $valueLabels = CRM_Case_PseudoConstant::caseType();
             break;
-
+        
           case 'GrantType':
             $typeName = 'Grant';
             $valueLabels = CRM_Core_OptionGroup::values('grant_type');
