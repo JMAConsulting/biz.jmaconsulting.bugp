@@ -199,7 +199,6 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         CRM_Contact_BAO_Contact::createProfileContact($value, $this->_fields, $this->_contactDetails[$key]['contact_id']);
 
         $value['custom'] = CRM_Core_BAO_CustomField::postProcess($value,
-          CRM_Core_DAO::$_nullObject,
           $key,
           'Grant'
         );
