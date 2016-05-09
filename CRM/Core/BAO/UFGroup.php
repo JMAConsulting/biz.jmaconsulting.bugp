@@ -1936,7 +1936,6 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
       'decision_date',
       'grant_money_transfer_date',
       'grant_due_date',
-      
     ))) {
       $form->addDate($name, $title, $required, array('formatType' => 'activityDate'));
     }
