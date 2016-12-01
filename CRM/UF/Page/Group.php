@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2015                                |
+ | Copyright CiviCRM LLC (c) 2004-2016                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2015
+ * @copyright CiviCRM LLC (c) 2004-2016
  * $Id$
  *
  */
@@ -118,12 +118,6 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
           'qs' => 'action=delete&id=%%id%%',
           'title' => ts('Delete CiviCRM Profile Group'),
         ),
-        CRM_Core_Action::PROFILE => array(
-          'name' => ts('HTML Form Snippet'),
-          'url' => 'civicrm/admin/uf/group',
-          'qs' => 'action=profile&gid=%%id%%',
-          'title' => ts('HTML Form Snippet for this Profile'),
-        ),
         CRM_Core_Action::COPY => array(
           'name' => ts('Copy'),
           'url' => 'civicrm/admin/uf/group',
@@ -132,6 +126,15 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
           'extra' => 'onclick = "return confirm(\'' . $copyExtra . '\');"',
         ),
       );
+      $allowRemoteSubmit = Civi::settings()->get('remote_profile_submissions');
+      if ($allowRemoteSubmit) {
+        self::$_actionLinks[CRM_Core_Action::PROFILE] = array(
+          'name' => ts('HTML Form Snippet'),
+          'url' => 'civicrm/admin/uf/group',
+          'qs' => 'action=profile&gid=%%id%%',
+          'title' => ts('HTML Form Snippet for this Profile'),
+        );
+      }
     }
     return self::$_actionLinks;
   }
@@ -351,10 +354,13 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
       $groupTypes = self::extractGroupTypes($value['group_type']);
 
       // drop Create, Edit and View mode links if profile group_type is one of the following:
-      $groupComponents = array('Contribution', 'Membership', 'Activity', 'Participant', 'Case', 'Grant');
-      $componentFound = array_intersect($groupComponents, array_keys($groupTypes));
-      if (!empty($componentFound)) {
+      // Contribution, Membership, Activity, Participant, Case, Grant
+      $isMixedProfile = CRM_Core_BAO_UFField::checkProfileType($id);
+      if ($isMixedProfile) {
         $action -= CRM_Core_Action::ADD;
+        $action -= CRM_Core_Action::ADVANCED;
+        $action -= CRM_Core_Action::BASIC;
+        $action -= CRM_Core_Action::PROFILE;
       }
 
       $ufGroup[$id]['group_type'] = self::formatGroupTypes($groupTypes);
