@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <extension key="biz.jmaconsulting.bugp" type="module">
-  <downloadUrl>https://github.com/downloads/JMAConsulting/biz.jmaconsulting.bugp/archive/1.3.1.zip</downloadUrl>
+  <downloadUrl>https://github.com/JMAConsulting/biz.jmaconsulting.bugp/archive/1.3.1.zip</downloadUrl>
   <file>bugp</file>
   <name>Batch Update of Grants via Profile</name>
   <description>Batch Update of Grants via Profile
