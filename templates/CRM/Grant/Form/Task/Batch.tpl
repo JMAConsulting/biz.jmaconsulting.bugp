@@ -51,7 +51,7 @@
 
           {foreach from=$fields item=field key=fieldName}
             {assign var=n value=$field.name}
-	    {if ($fields.$n.data_type eq 'Date') or ($n|in_array:$dateArray)}
+	    {if ($n|in_array:$dateArray)}
               <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$cid batchUpdate=1}</td>
             {elseif !empty($fields.$n.html_type)  && $fields.$n.html_type eq 'Autocomplete-Select'}
               {assign var=elementName value=field[$cid][$n]}
