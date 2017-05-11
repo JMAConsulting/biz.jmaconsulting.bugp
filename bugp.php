@@ -235,6 +235,7 @@ function bugp_civicrm_post($op, $objectName, $objectId, &$objectRef) {
       'Travel' => 'TR',
       'WTO Response Fund' => 'WT',
       'Capacity Building' => 'CB',
+      'Funders\' Collaborative' => 'FC',
     );
     if (isset($grantTypes[$objectRef->grant_type_id])) {
       $type = $mapping[$grantTypes[$objectRef->grant_type_id]];
