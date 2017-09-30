@@ -162,7 +162,7 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
     $this->assign('action', $action);
     $this->assign('selectedChild', CRM_Utils_Request::retrieve('selectedChild', 'String', $this));
     $id = CRM_Utils_Request::retrieve('id', 'Positive',
-      $this, FALSE, 0
+      $this, FALSE, NULL
     );
 
     //set the context and then start w/ action.
@@ -205,7 +205,7 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
    */
   public function copy() {
     $gid = CRM_Utils_Request::retrieve('gid', 'Positive',
-      $this, TRUE, 0, 'GET'
+      $this, TRUE, NULL, 'GET'
     );
 
     CRM_Core_BAO_UFGroup::copy($gid);
@@ -225,7 +225,7 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
     $config->useFrameworkRelativeBase = $config->userFrameworkBaseURL;
 
     $gid = CRM_Utils_Request::retrieve('gid', 'Positive',
-      $this, FALSE, 0, 'GET'
+      $this, FALSE, NULL, 'GET'
     );
     $controller = new CRM_Core_Controller_Simple('CRM_Profile_Form_Edit', ts('Create'), CRM_Core_Action::ADD,
       FALSE, FALSE, TRUE
