@@ -7,7 +7,9 @@
  */
 function _bugp_civix_civicrm_config(&$config = NULL) {
   static $configured = FALSE;
-  if ($configured) return;
+  if ($configured) {
+    return;
+  }
   $configured = TRUE;
 
   $template =& CRM_Core_Smarty::singleton();

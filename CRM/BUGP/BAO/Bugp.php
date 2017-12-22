@@ -23,7 +23,7 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*/
+ */
 
 /**
  *
@@ -43,12 +43,10 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
    * This function retrieve component related contact information.
    *
    * @param array $componentIds array of component Ids.
-   * @param $componentName
-   * @param array $returnProperties array of return elements.
    *
    * @return array $contactDetails array of contact info.@static
    */
-  static function contactDetails($componentIds) {
+  static public function contactDetails($componentIds) {
     $contactDetails = array();
 
     $autocompleteContactSearch = CRM_Core_BAO_Setting::valueOptions(CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,
@@ -127,11 +125,10 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
    * @param $fields
    * @param $defaults
    *
-   * @return null
    * @static
    * @access public
    */
-  static function setProfileDefaults($contactId, &$fields, &$defaults, $grantId) {
+  static public function setProfileDefaults($contactId, &$fields, &$defaults, $grantId) {
 
     //get the contact details
     list($contactDetails, $options) = CRM_Contact_BAO_Contact::getHierContactDetails($contactId, $fields);
@@ -141,8 +138,8 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
     //start of code to set the default values
     foreach ($fields as $name => $field) {
       // skip pseudo fields
-        if (substr($name, 0, 9) == 'phone_ext'
-          || !in_array($field['field_type'], array('Individual', 'Organization', 'Household', 'Contact'))) {
+      if (substr($name, 0, 9) == 'phone_ext'
+        || !in_array($field['field_type'], array('Individual', 'Organization', 'Household', 'Contact'))) {
         continue;
       }
 
@@ -181,54 +178,54 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
           $customFields = CRM_Core_BAO_CustomField::getFields(CRM_Utils_Array::value('contact_type', $details));
 
           switch ($customFields[$customFieldId]['html_type']) {
-          case 'Multi-Select State/Province':
-          case 'Multi-Select Country':
-          case 'AdvMulti-Select':
-          case 'Multi-Select':
-            $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
-            foreach ($v as $item) {
-              if ($item) {
-                $defaults[$fldName][$item] = $item;
+            case 'Multi-Select State/Province':
+            case 'Multi-Select Country':
+            case 'AdvMulti-Select':
+            case 'Multi-Select':
+              $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
+              foreach ($v as $item) {
+                if ($item) {
+                  $defaults[$fldName][$item] = $item;
+                }
               }
-            }
             break;
 
-          case 'CheckBox':
-            $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
-            foreach ($v as $item) {
-              if ($item) {
-                $defaults[$fldName][$item] = 1;
-                // seems like we need this for QF style checkboxes in profile where its multiindexed
-                // CRM-2969
-                $defaults["{$fldName}[{$item}]"] = 1;
+            case 'CheckBox':
+              $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
+              foreach ($v as $item) {
+                if ($item) {
+                  $defaults[$fldName][$item] = 1;
+                  // seems like we need this for QF style checkboxes in profile where its multiindexed
+                  // CRM-2969
+                  $defaults["{$fldName}[{$item}]"] = 1;
+                }
               }
-            }
             break;
 
-          case 'Select Date':
-            // CRM-6681, set defult values according to date and time format (if any).
-            $dateFormat = NULL;
-            if (!empty($customFields[$customFieldId]['date_format'])) {
-              $dateFormat = $customFields[$customFieldId]['date_format'];
-            }
-
-            if (empty($customFields[$customFieldId]['time_format'])) {
-              list($defaults[$fldName]) = CRM_Utils_Date::setDateDefaults($details[$name], NULL,
-                $dateFormat
-              );
-            }
-            else {
-              $timeElement = $fldName . '_time';
-              if (substr($fldName, -1) == ']') {
-                $timeElement = substr($fldName, 0, -1) . '_time]';
+            case 'Select Date':
+              // CRM-6681, set defult values according to date and time format (if any).
+              $dateFormat = NULL;
+              if (!empty($customFields[$customFieldId]['date_format'])) {
+                $dateFormat = $customFields[$customFieldId]['date_format'];
               }
-              list($defaults[$fldName], $defaults[$timeElement]) = CRM_Utils_Date::setDateDefaults($details[$name],
-                NULL, $dateFormat, $customFields[$customFieldId]['time_format']);
-            }
+
+              if (empty($customFields[$customFieldId]['time_format'])) {
+                list($defaults[$fldName]) = CRM_Utils_Date::setDateDefaults($details[$name], NULL,
+                  $dateFormat
+                );
+              }
+              else {
+                $timeElement = $fldName . '_time';
+                if (substr($fldName, -1) == ']') {
+                  $timeElement = substr($fldName, 0, -1) . '_time]';
+                }
+                list($defaults[$fldName], $defaults[$timeElement]) = CRM_Utils_Date::setDateDefaults($details[$name],
+                  NULL, $dateFormat, $customFields[$customFieldId]['time_format']);
+                }
             break;
 
-          default:
-            $defaults[$fldName] = $details[$name];
+            default:
+              $defaults[$fldName] = $details[$name];
             break;
           }
         }
@@ -246,12 +243,12 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
               // type as per loc field and removed below code.
               $primaryLocationType = FALSE;
               if ($locTypeId == 'Primary') {
-                if (is_array($value) && array_key_exists($fieldName, $value)){
+                if (is_array($value) && array_key_exists($fieldName, $value)) {
                   $primaryLocationType = TRUE;
-                  if (in_array($fieldName, $blocks)){
+                  if (in_array($fieldName, $blocks)) {
                     $locTypeId = CRM_Contact_BAO_Contact::getPrimaryLocationType($contactId, FALSE, $fieldName);
                   }
-                  else{
+                  else {
                     $locTypeId = CRM_Contact_BAO_Contact::getPrimaryLocationType($contactId, FALSE, 'address');
                   }
                 }
@@ -332,7 +329,7 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
     }
   }
 
-  static function getProfileTypes($profileId, $grantIds) {
+  static public function getProfileTypes($profileId, $grantIds) {
     $totalGrantType = count(CRM_Core_PseudoConstant::get('CRM_Grant_DAO_Grant', 'grant_type_id'));
     $sql = "SELECT ccg.extends_entity_column_value FROM civicrm_uf_field cuf
 INNER JOIN civicrm_custom_field ccf ON ccf.id = REPLACE(cuf.field_name, 'custom_', '')
@@ -352,7 +349,6 @@ GROUP BY ccg.id";
         $grantTypes = array_merge($grantTypes, $gTypes);
       }
     }
-
 
     $groupByClause = array();
     if (!empty($grantTypes)) {
@@ -394,18 +390,18 @@ GROUP BY ccg.id";
         return TRUE;
       }
     }
-    elseif ($result->N == 1){
+    elseif ($result->N == 1) {
       $result->fetch();
       if ((!empty($contactTypes) && !in_array($result->contact_type, $contactTypes))
-        || (!empty($grantTypes) && (!in_array($result->grant_type_id, $grantTypes) || (!empty($commonGrantType) && !in_array($result->grant_type_id, $commonGrantType)))))
-      {
+        || (!empty($grantTypes) && (!in_array($result->grant_type_id, $grantTypes) || (!empty($commonGrantType) && !in_array($result->grant_type_id, $commonGrantType))))
+      ) {
         return TRUE;
       }
     }
     return FALSE;
   }
 
-  static function getGrantFields() {
+  static public function getGrantFields() {
     $exportableFields = self::exportableFields('Grant');
 
     $skipFields = array('grant_id', 'grant_contact_id');
@@ -417,32 +413,32 @@ GROUP BY ccg.id";
     return $exportableFields;
   }
 
-  static function exportableFields() {
+  static public function exportableFields() {
     $grantFields = array(
       'grant_status_id' => array(
-      'title' => ts('Grant Status'),
-      'name' => 'grant_status',
-      'data_type' => CRM_Utils_Type::T_STRING,
-    ),
-    'amount_requested' => array(
-      'title' => ts('Grant Amount Requested'),
-      'name' => 'grant_amount_requested',
-      'where' => 'civicrm_grant.amount_requested',
-      'data_type' => CRM_Utils_Type::T_FLOAT,
-    ),
-    'grant_note' => array(
-      'title' => ts('Grant Note'),
-      'name' => 'grant_note',
-      'data_type' => CRM_Utils_Type::T_TEXT,
-    ),
-  );
+        'title' => ts('Grant Status'),
+        'name' => 'grant_status',
+        'data_type' => CRM_Utils_Type::T_STRING,
+      ),
+      'amount_requested' => array(
+        'title' => ts('Grant Amount Requested'),
+        'name' => 'grant_amount_requested',
+        'where' => 'civicrm_grant.amount_requested',
+        'data_type' => CRM_Utils_Type::T_FLOAT,
+      ),
+      'grant_note' => array(
+        'title' => ts('Grant Note'),
+        'name' => 'grant_note',
+        'data_type' => CRM_Utils_Type::T_TEXT,
+      ),
+    );
 
-  $fields = CRM_Grant_DAO_Grant::export();
-  $fields = array_merge($fields, $grantFields,
-    CRM_Core_BAO_CustomField::getFieldsForImport('Grant'),
-    CRM_Financial_DAO_FinancialType::export()
-  );
-  return $fields;
+    $fields = CRM_Grant_DAO_Grant::export();
+    $fields = array_merge($fields, $grantFields,
+      CRM_Core_BAO_CustomField::getFieldsForImport('Grant'),
+      CRM_Financial_DAO_FinancialType::export()
+    );
+    return $fields;
   }
 
   /**
@@ -450,10 +446,11 @@ GROUP BY ccg.id";
    *
    * return array of enabled extensions
    */
-  static function checkRelatedExtensions() {
+  static public function checkRelatedExtensions() {
     $enableDisable = NULL;
     $sql = "SELECT is_active FROM civicrm_extension WHERE full_name IN ('biz.jmaconsulting.grantapplications')";
     $enableDisable = CRM_Core_DAO::singleValueQuery($sql);
     return $enableDisable;
   }
+
 }
