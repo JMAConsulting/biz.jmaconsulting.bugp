@@ -3,23 +3,22 @@
 require_once 'bugp.civix.php';
 
 /**
- * Implementation of hook_civicrm_config
+ * Implements hook_civicrm_config().
  */
 function bugp_civicrm_config(&$config) {
   _bugp_civix_civicrm_config($config);
 }
 
 /**
- * Implementation of hook_civicrm_xmlMenu
+ * Implements hook_civicrm_xmlMenu().
  *
- * @param $files array(string)
  */
 function bugp_civicrm_xmlMenu(&$files) {
   _bugp_civix_civicrm_xmlMenu($files);
 }
 
 /**
- * Implementation of hook_civicrm_install
+ * Implements hook_civicrm_install().
  */
 function bugp_civicrm_install() {
   bugp_addRemoveMenu(TRUE);
@@ -27,7 +26,7 @@ function bugp_civicrm_install() {
 }
 
 /**
- * Implementation of hook_civicrm_uninstall
+ * Implements hook_civicrm_uninstall().
  */
 function bugp_civicrm_uninstall() {
   bug_enableDisableDeleteData(2);
@@ -35,7 +34,7 @@ function bugp_civicrm_uninstall() {
 }
 
 /**
- * Implementation of hook_civicrm_enable
+ * Implements hook_civicrm_enable().
  */
 function bugp_civicrm_enable() {
   bug_enableDisableDeleteData(1);
@@ -43,7 +42,7 @@ function bugp_civicrm_enable() {
 }
 
 /**
- * Implementation of hook_civicrm_disable
+ * Implements hook_civicrm_disable().
  */
 function bugp_civicrm_disable() {
   bug_enableDisableDeleteData(0);
@@ -51,20 +50,15 @@ function bugp_civicrm_disable() {
 }
 
 /**
- * Implementation of hook_civicrm_upgrade
+ * Implements hook_civicrm_upgrade().
  *
- * @param $op string, the type of operation being performed; 'check' or 'enqueue'
- * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
- *
- * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
- *                for 'enqueue', returns void
  */
 function bugp_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
   return _bugp_civix_civicrm_upgrade($op, $queue);
 }
 
 /**
- * Implementation of hook_civicrm_managed
+ * Implements hook_civicrm_managed().
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
@@ -73,6 +67,10 @@ function bugp_civicrm_managed(&$entities) {
   return _bugp_civix_civicrm_managed($entities);
 }
 
+/**
+ * Implements hook_civicrm_searchTasks().
+ *
+ */
 function bugp_civicrm_searchTasks($objectName, &$tasks) {
   if ($objectName == 'grant') {
     $tasks[CRM_Grant_Task::UPDATE_GRANTS]['title'] = ts('Batch Update Grants via Profile');
@@ -83,6 +81,10 @@ function bugp_civicrm_searchTasks($objectName, &$tasks) {
   }
 }
 
+/**
+ * Implements hook_civicrm_buildForm().
+ *
+ */
 function bugp_civicrm_buildForm($formName, &$form) {
   // Code to be done to avoid core editing
   if ($formName == "CRM_UF_Form_Field" && CRM_Core_Permission::access('CiviGrant')) {
@@ -98,7 +100,7 @@ function bugp_civicrm_buildForm($formName, &$form) {
 
       $elements->_elements[0]->_options[] = array(
         'text' => 'Grant',
-        'attr' => array('value' => 'Grant')
+        'attr' => array('value' => 'Grant'),
       );
 
       $elements->_js .= 'hs_field_name_Grant = ' . json_encode($form->_mapperFields['Grant']) . ';';
@@ -113,7 +115,7 @@ function bugp_civicrm_buildForm($formName, &$form) {
   }
 }
 
-/*
+/**
  * function to perform enable, disable, un-install actions
  *
  */
@@ -123,7 +125,7 @@ function bug_enableDisableDeleteData($action) {
     if ($enableDisableDeleteData) {
       return FALSE;
     }
-    elseif($enableDisableDeleteData == 0) {
+    elseif ($enableDisableDeleteData == 0) {
       $action = 0;
     }
   }
@@ -150,7 +152,7 @@ function bug_enableDisableDeleteData($action) {
 
 }
 
-/*
+/**
  * function to enable / disable component
  *
  */
@@ -171,7 +173,10 @@ function bugp_addRemoveMenu($enable) {
     }
   }
 
-  CRM_Core_BAO_Setting::setItem($params['enableComponents'],
-    CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,'enable_components');
+  CRM_Core_BAO_Setting::setItem(
+    $params['enableComponents'],
+    CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,
+    'enable_components'
+  );
 
 }

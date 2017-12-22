@@ -3,7 +3,7 @@
 // AUTO-GENERATED FILE -- Civix may overwrite any changes made to this file
 
 /**
- * (Delegated) Implementation of hook_civicrm_config
+ * (Delegated) Implementation of hook_civicrm_confi
  */
 function _bugp_civix_civicrm_config(&$config = NULL) {
   static $configured = FALSE;
@@ -12,17 +12,18 @@ function _bugp_civix_civicrm_config(&$config = NULL) {
 
   $template =& CRM_Core_Smarty::singleton();
 
-  $extRoot = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+  $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
   $extDir = $extRoot . 'templates';
 
-  if ( is_array( $template->template_dir ) ) {
-      array_unshift( $template->template_dir, $extDir );
-  } else {
-      $template->template_dir = array( $extDir, $template->template_dir );
+  if (is_array($template->template_dir)) {
+    array_unshift($template->template_dir, $extDir);
+  }
+  else {
+    $template->template_dir = array($extDir, $template->template_dir);
   }
 
-  $include_path = $extRoot . PATH_SEPARATOR . get_include_path( );
-  set_include_path( $include_path );
+  $include_path = $extRoot . PATH_SEPARATOR . get_include_path();
+  set_include_path($include_path);
 }
 
 /**
@@ -37,7 +38,7 @@ function _bugp_civix_civicrm_xmlMenu(&$files) {
 }
 
 /**
- * Implementation of hook_civicrm_install
+ * (Delegated) Implementation of hook_civicrm_install
  */
 function _bugp_civix_civicrm_install() {
   _bugp_civix_civicrm_config();
@@ -47,7 +48,7 @@ function _bugp_civix_civicrm_install() {
 }
 
 /**
- * Implementation of hook_civicrm_uninstall
+ * (Delegated) Implementation of hook_civicrm_uninstall
  */
 function _bugp_civix_civicrm_uninstall() {
   _bugp_civix_civicrm_config();
@@ -96,9 +97,10 @@ function _bugp_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 }
 
 function _bugp_civix_upgrader() {
-  if (!file_exists(__DIR__.'/CRM/BUGP/Upgrader.php')) {
+  if (!file_exists(__DIR__ . '/CRM/BUGP/Upgrader.php')) {
     return NULL;
-  } else {
+  }
+  else {
     return CRM_BUGP_Upgrader_Base::instance();
   }
 }
@@ -131,7 +133,8 @@ function _bugp_civix_find_files($dir, $pattern) {
       while (FALSE !== ($entry = readdir($dh))) {
         $path = $subdir . DIRECTORY_SEPARATOR . $entry;
         if ($entry{0} == '.') {
-        } elseif (is_dir($path)) {
+        }
+        elseif (is_dir($path)) {
           $todos[] = $path;
         }
       }
@@ -188,29 +191,33 @@ function _bugp_civix_insert_navigation_menu(&$menu, $path, $item, $parentId = NU
 
   // If we are done going down the path, insert menu
   if (empty($path)) {
-    if (!$navId) $navId = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
-    $navId ++;
-    $menu[$navId] = array (
+    if (!$navId) {
+      $navId = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
+    }
+    $navId++;
+    $menu[$navId] = array(
       'attributes' => array_merge($item, array(
-        'label'      => CRM_Utils_Array::value('name', $item),
-        'active'     => 1,
-        'parentID'   => $parentId,
-        'navID'      => $navId,
-      ))
+        'label' => CRM_Utils_Array::value('name', $item),
+        'active' => 1,
+        'parentID' => $parentId,
+        'navID' => $navId,
+      )),
     );
-    return true;
-  } else {
+    return TRUE;
+  }
+  else {
     // Find an recurse into the next level down
-    $found = false;
+    $found = FALSE;
     $path = explode('/', $path);
     $first = array_shift($path);
     foreach ($menu as $key => &$entry) {
       if ($entry['attributes']['name'] == $first) {
-        if (!$entry['child']) $entry['child'] = array();
+        if (!$entry['child']) {
+          $entry['child'] = array();
+        }
         $found = _bugp_civix_insert_navigation_menu($entry['child'], implode('/', $path), $item, $key);
       }
     }
     return $found;
   }
 }
- 
