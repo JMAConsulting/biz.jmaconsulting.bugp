@@ -3,7 +3,7 @@
  +--------------------------------------------------------------------+
  | CiviCRM version 4.7                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2016                                |
+ | Copyright CiviCRM LLC (c) 2004-2017                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -28,7 +28,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2016
+ * @copyright CiviCRM LLC (c) 2004-2017
  * $Id$
  *
  */
@@ -360,7 +360,11 @@ class CRM_UF_Page_Group extends CRM_Core_Page {
         $action -= CRM_Core_Action::ADD;
         $action -= CRM_Core_Action::ADVANCED;
         $action -= CRM_Core_Action::BASIC;
-        $action -= CRM_Core_Action::PROFILE;
+
+        //CRM-21004
+        if (array_key_exists(CRM_Core_Action::PROFILE, self::$_actionLinks)) {
+          $action -= CRM_Core_Action::PROFILE;
+        }
       }
 
       $ufGroup[$id]['group_type'] = self::formatGroupTypes($groupTypes);
