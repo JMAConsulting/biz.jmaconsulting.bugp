@@ -2402,7 +2402,7 @@ AND    ( entity_id IS NULL OR entity_id <= 0 )
                 }
                 break;
 
-                case 'Autocomplete-Select':
+              case 'Autocomplete-Select':
                 if ($customFields[$customFieldId]['data_type'] == 'ContactReference') {
                   if (is_numeric($details[$name])) {
                     $defaults[$fldName . '_id'] = $details[$name];

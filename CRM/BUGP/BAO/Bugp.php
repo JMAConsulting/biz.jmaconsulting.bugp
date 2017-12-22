@@ -188,7 +188,7 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
                   $defaults[$fldName][$item] = $item;
                 }
               }
-            break;
+              break;
 
             case 'CheckBox':
               $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
@@ -200,7 +200,7 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
                   $defaults["{$fldName}[{$item}]"] = 1;
                 }
               }
-            break;
+              break;
 
             case 'Select Date':
               // CRM-6681, set defult values according to date and time format (if any).
@@ -220,13 +220,14 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
                   $timeElement = substr($fldName, 0, -1) . '_time]';
                 }
                 list($defaults[$fldName], $defaults[$timeElement]) = CRM_Utils_Date::setDateDefaults($details[$name],
-                  NULL, $dateFormat, $customFields[$customFieldId]['time_format']);
-                }
-            break;
+                  NULL, $dateFormat, $customFields[$customFieldId]['time_format']
+                );
+              }
+              break;
 
             default:
               $defaults[$fldName] = $details[$name];
-            break;
+              break;
           }
         }
         else {
