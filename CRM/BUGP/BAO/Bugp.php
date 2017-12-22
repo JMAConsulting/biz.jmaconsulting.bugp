@@ -95,12 +95,12 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
       $fromClause   = implode(' ', $from);
       $selectClause = implode(', ', $select);
       $whereClause  = "{$compTable}.id IN (" . implode(',', $componentIds) . ')';
-
+      $groupBy = CRM_Contact_BAO_Query::getGroupByFromSelectColumns($select, array("{$compTable}.id", 'contact.id'));
       $query = "
   SELECT  contact.id as contactId, $compTable.id as componentId, $selectClause
     FROM  $compTable as $compTable $fromClause
    WHERE  $whereClause
-Group By  componentId";
+{$groupBy}";
 
       $contact = CRM_Core_DAO::executeQuery($query);
       while ($contact->fetch()) {
@@ -358,7 +358,7 @@ GROUP BY ccg.id";
     if (!empty($grantTypes)) {
       $groupByClause[] = 'grant_type_id';
     }
-    $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId}
+    $dao = CRM_Core_DAO::executeQuery("SELECT GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId}
       AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
 
     $contactTypes = array();
@@ -367,7 +367,7 @@ GROUP BY ccg.id";
       $contactTypes = $dao->field_type ? explode(',', $dao->field_type) : array();
     }
 
-    $query = 'SELECT cg.id, cc.contact_type, cg.grant_type_id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
+    $query = 'SELECT cc.contact_type, ANY_VALUE(cg.grant_type_id) FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
     if (!empty($groupByClause)) {
       $query .= ' GROUP BY ' . implode(',', $groupByClause);
     }

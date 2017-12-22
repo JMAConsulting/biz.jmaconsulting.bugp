@@ -88,7 +88,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     }
     $this->_title = ts('Batch Update for Grant(s)') . ' - ' . CRM_Core_BAO_UFGroup::getTitle($ufGroupId);
     CRM_Utils_System::setTitle($this->_title);
-    
+
     $this->_fields = array();
     $this->_fields = CRM_Core_BAO_UFGroup::getFields($ufGroupId, FALSE, CRM_Core_Action::VIEW);
 
@@ -108,7 +108,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         $this->_fields[$name]['attributes']['size'] = 19;
       }
     }
-    
+
     $this->_fields = array_slice($this->_fields, 0, $this->_maxFields);
 
     $this->assign('profileTitle', $this->_title);
@@ -128,7 +128,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
             );
           }
 
-          if (!empty($entityColumnValue[$typeId]) || 
+          if (!empty($entityColumnValue[$typeId]) ||
             CRM_Utils_System::isNull(CRM_Utils_Array::value($typeId, $entityColumnValue))
           ) {
             CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
@@ -137,7 +137,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         else {
           // handle non custom fields
           CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
-          
+
           if (in_array($name, array(
             'amount_total', 'grant_amount_requested', 'amount_granted'))) {
             $this->addRule("field[{$grantId}][{$name}]", ts('Please enter a valid amount.'), 'money');
@@ -204,23 +204,27 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
         );
 
         $ids = array('grant_id' => $key);
-        
+
         if (array_key_exists('grant_money_transfer_date', $value)) {
-          $value['money_transfer_date'] = $value['grant_money_transfer_date'];   
+          $value['money_transfer_date'] = $value['grant_money_transfer_date'];
           unset($value['grant_money_transfer_date']);
         }
-        
+        if (array_key_exists('financial_type', $value)) {
+          $value['financial_type_id'] = $value['financial_type'];
+          unset($value['financial_type']);
+        }
+
         if (array_key_exists('grant_note', $value)) {
-          $value['note'] = $value['grant_note'];   
+          $value['note'] = $value['grant_note'];
           unset($value['grant_note']);
           $note = CRM_Core_BAO_Note::getNote($key, 'civicrm_grant');
           if (!empty($note)) {
             $ids['note']['id'] = key($note);
           }
         }
-        
+
         $grant = CRM_Grant_BAO_Grant::create($value, $ids);
-        
+
         // add custom field values
         if (!empty($value['custom']) &&
           is_array($value['custom'])
@@ -235,4 +239,3 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     }
   }
 }
-

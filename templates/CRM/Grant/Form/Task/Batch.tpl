@@ -41,8 +41,7 @@
           {/foreach}
         </tr>
       </thead>
-      
-      {assign var='dateArray' value=','|explode:"Date,decision_date,grant_money_transfer_date,application_received_date,grant_due_date"}
+
       {foreach from=$componentIds item=cid}
         <tr class="{cycle values="odd-row,even-row"}" entity_id="{$cid}">
           {foreach from=$readOnlyFields item=fTitle key=fName}
@@ -51,9 +50,7 @@
 
           {foreach from=$fields item=field key=fieldName}
             {assign var=n value=$field.name}
-	    {if ($n|in_array:$dateArray)}
-              <td class="compressed">{include file="CRM/common/jcalendar.tpl" elementName=$n elementIndex=$cid batchUpdate=1}</td>
-            {elseif !empty($fields.$n.html_type)  && $fields.$n.html_type eq 'Autocomplete-Select'}
+	    {if !empty($fields.$n.html_type)  && $fields.$n.html_type eq 'Autocomplete-Select'}
               {assign var=elementName value=field[$cid][$n]}
               <td class="compressed">{$form.field.$cid.$n.html}{include file="CRM/Custom/Form/ContactReference.tpl" element_name=$elementName}</td>
 	    {else}
