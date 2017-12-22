@@ -23,7 +23,7 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*/
+ */
 
 /**
  *
@@ -69,7 +69,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    * @return void
    * @access public
    */
-  function preProcess() {
+  public function preProcess() {
     /*
      * initialize the task and row fields
      */
@@ -80,11 +80,11 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     $this->_contactDetails = CRM_BUGP_BAO_Bugp::contactDetails($this->_grantIds);
     $this->set('contactDetails', $this->_contactDetails);
     $this->_contactIds = array();
-    
+
     foreach ($this->_contactDetails as $value) {
       $this->_contactIds[] = $value['contact_id'];
     }
-        
+
     $validate = FALSE;
     //validations
     if (count($this->_grantIds) > $this->_maxGrants) {
@@ -96,7 +96,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
       CRM_Core_Session::setStatus(ts("Batch update requires that all selected contacts be the same basic type (e.g. all Individuals OR all Organizations...). Please modify your selection and try again."), ts('Contact Type Mismatch'), 'error');
       $validate = TRUE;
     }
-    
+
     // then redirect if error
     if ($validate) {
       CRM_Utils_System::redirect($this->_userContext);
@@ -110,7 +110,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    *
    * @return void
    */
-  function buildQuickForm() {
+  public function buildQuickForm() {
     CRM_Utils_System::setTitle(ts('Batch Profile Update for Grant'));
 
     $grantTypes = CRM_Core_PseudoConstant::get('CRM_Grant_DAO_Grant', 'grant_type_id');
@@ -141,7 +141,7 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    *
    * @return void
    */
-  function addRules() {
+  public function addRules() {
     $this->addFormRule(array('CRM_Grant_Form_Task_PickProfile', 'formRule'), $this);
   }
 
@@ -154,12 +154,12 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
    * @static
    * @access public
    */
-  static function formRule($fields, $ignore, $form) {
+  static public function formRule($fields, $ignore, $form) {
     $errors = array();
     if (empty($fields['uf_group_id'])) {
       return $errors;
     }
-    
+
     // Throw error when a profile is used for multiple grant type
     if (CRM_BUGP_BAO_Bugp::getProfileTypes($fields['uf_group_id'], $form->_grantIds)) {
       $errors['uf_group_id'] = ts('Batch update requires that all selected grants be the same basic type (e.g. all Emergency OR all Family Support...) and of the same contact type. The profile selected for batch update must allow editing of all grant types. Please modify your selection and try again.');
@@ -181,5 +181,5 @@ class CRM_Grant_Form_Task_PickProfile extends CRM_Grant_Form_Task {
     // also reset the batch page so it gets new values from the db
     $this->controller->resetPage('Batch');
   }
-}
 
+}

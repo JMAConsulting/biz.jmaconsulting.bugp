@@ -23,7 +23,7 @@
  | GNU Affero General Public License or the licensing of CiviCRM,     |
  | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
  +--------------------------------------------------------------------+
-*/
+ */
 
 /**
  *
@@ -63,7 +63,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    * @return void
    * @access public
    */
-  function preProcess() {
+  public function preProcess() {
     /*
      * initialize the task and row fields
      */
@@ -80,7 +80,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    *
    * @return void
    */
-  function buildQuickForm() {
+  public function buildQuickForm() {
     $ufGroupId = $this->get('ufGroupId');
 
     if (!$ufGroupId) {
@@ -164,7 +164,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
    *
    * @return void
    */
-  function setDefaultValues() {
+  public function setDefaultValues() {
     if (empty($this->_fields)) {
       return;
     }
@@ -176,7 +176,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
       if (array_key_exists('grant_note', $this->_fields)) {
         $note = CRM_Core_BAO_Note::getNote($grantId, 'civicrm_grant');
         if (!empty($note)) {
-         $defaults["field[$grantId][grant_note]"] = reset($note);
+          $defaults["field[$grantId][grant_note]"] = reset($note);
         }
       }
     }
@@ -238,4 +238,5 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
       CRM_Core_Session::setStatus(ts("No updates have been saved."), ts('Not Saved'), 'alert');
     }
   }
+
 }
