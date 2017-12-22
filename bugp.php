@@ -75,8 +75,8 @@ function bugp_civicrm_managed(&$entities) {
 
 function bugp_civicrm_searchTasks($objectName, &$tasks) {
   if ($objectName == 'grant') {
-    $tasks[CRM_Grant_Task::UPDATE_GRANTS]['title'] = 'Batch Update Grants via Profile';
-    $tasks[CRM_Grant_Task::UPDATE_GRANTS]['class'] = array( 
+    $tasks[CRM_Grant_Task::UPDATE_GRANTS]['title'] = ts('Batch Update Grants via Profile');
+    $tasks[CRM_Grant_Task::UPDATE_GRANTS]['class'] = array(
       'CRM_Grant_Form_Task_PickProfile',
       'CRM_Grant_Form_Task_Batch',
     );
@@ -89,23 +89,23 @@ function bugp_civicrm_buildForm($formName, &$form) {
     if (!$form->elementExists('field_name')) {
       return NULL;
     }
-    
+
     $elements = & $form->getElement('field_name');
-    
+
     if ($elements && !array_key_exists('Grant', $elements->_options[0])) {
       $elements->_options[0]['Grant'] = 'Grant';
       $elements->_options[1]['Grant'] = $form->_mapperFields['Grant'];
-          
+
       $elements->_elements[0]->_options[] = array(
         'text' => 'Grant',
         'attr' => array('value' => 'Grant')
       );
-      
+
       $elements->_js .= 'hs_field_name_Grant = ' . json_encode($form->_mapperFields['Grant']) . ';';
     }
-    
+
     // set default mapper when updating profile fields
-    if ($form->_defaultValues && array_key_exists('field_name', $form->_defaultValues) 
+    if ($form->_defaultValues && array_key_exists('field_name', $form->_defaultValues)
       && $form->_defaultValues['field_name'][0] == 'Grant') {
       $defaults['field_name'] = $form->_defaultValues['field_name'];
       $form->setDefaults($defaults);
@@ -125,17 +125,17 @@ function bug_enableDisableDeleteData($action) {
     }
     elseif($enableDisableDeleteData == 0) {
       $action = 0;
-    }    
+    }
   }
 
-  if ($action < 2) { 
+  if ($action < 2) {
     CRM_Core_DAO::executeQuery(
-      "UPDATE civicrm_uf_group SET is_active = %1 WHERE group_type LIKE '%Grant%'", 
+      "UPDATE civicrm_uf_group SET is_active = %1 WHERE group_type LIKE '%Grant%'",
       array(
         1 => array($action, 'Integer'),
       )
-    ); 
-    
+    );
+
   }
   else {
     CRM_Core_DAO::executeQuery(
@@ -144,10 +144,10 @@ function bug_enableDisableDeleteData($action) {
        LEFT JOIN civicrm_uf_field uf ON uf.uf_group_id = g.id
        WHERE g.group_type LIKE '%Grant%';"
     );
-  }  
-  
+  }
+
   bugp_addRemoveMenu($action);
-  
+
 }
 
 /*
@@ -156,7 +156,7 @@ function bug_enableDisableDeleteData($action) {
  */
 function bugp_addRemoveMenu($enable) {
   $config = CRM_Core_Config::singleton();
-  
+
   $params['enableComponents'] = $config->enableComponents;
   if ($enable) {
     if (array_search('CiviGrant', $config->enableComponents)) {
@@ -170,8 +170,8 @@ function bugp_addRemoveMenu($enable) {
       unset($params['enableComponents'][$key]);
     }
   }
-  
+
   CRM_Core_BAO_Setting::setItem($params['enableComponents'],
     CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,'enable_components');
-  
+
 }

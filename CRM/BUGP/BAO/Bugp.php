@@ -70,7 +70,7 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
           $select[] = "$property as $property";
           $from[$value] = "INNER JOIN civicrm_contact contact ON ( contact.id = $compTable.contact_id )";
           break;
-          
+
         case 'email':
         case 'phone':
         case 'city':
@@ -114,8 +114,8 @@ Group By  componentId";
 
     return $contactDetails;
   }
-  
-  
+
+
   /**
    * Function to set profile defaults
    *
@@ -132,7 +132,7 @@ Group By  componentId";
    * @access public
    */
   static function setProfileDefaults($contactId, &$fields, &$defaults, $grantId) {
-    
+
     //get the contact details
     list($contactDetails, $options) = CRM_Contact_BAO_Contact::getHierContactDetails($contactId, $fields);
     $details = CRM_Utils_Array::value($contactId, $contactDetails);
@@ -141,7 +141,7 @@ Group By  componentId";
     //start of code to set the default values
     foreach ($fields as $name => $field) {
       // skip pseudo fields
-        if (substr($name, 0, 9) == 'phone_ext' 
+        if (substr($name, 0, 9) == 'phone_ext'
           || !in_array($field['field_type'], array('Individual', 'Organization', 'Household', 'Contact'))) {
         continue;
       }
@@ -331,7 +331,7 @@ Group By  componentId";
       }
     }
   }
-  
+
   static function getProfileTypes($profileId, $grantIds) {
     $totalGrantType = count(CRM_Core_PseudoConstant::get('CRM_Grant_DAO_Grant', 'grant_type_id'));
     $sql = "SELECT ccg.extends_entity_column_value FROM civicrm_uf_field cuf
@@ -351,22 +351,22 @@ GROUP BY ccg.id";
         $commonGrantType = array_intersect(array_merge($commonGrantType, $grantTypes), $gTypes);
         $grantTypes = array_merge($grantTypes, $gTypes);
       }
-    } 
-    
-    
+    }
+
+
     $groupByClause = array();
     if (!empty($grantTypes)) {
       $groupByClause[] = 'grant_type_id';
     }
-    $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
+    $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId}
       AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
-    
+
     $contactTypes = array();
     if ($dao->fetch()) {
       $groupByClause[] = 'contact_type';
       $contactTypes = $dao->field_type ? explode(',', $dao->field_type) : array();
     }
-    
+
     $query = 'SELECT cg.id, cc.contact_type, cg.grant_type_id FROM civicrm_grant cg INNER JOIN civicrm_contact cc ON cc.id = cg.contact_id WHERE cg.id IN (' . implode(',', $grantIds) . ') ';
     if (!empty($groupByClause)) {
       $query .= ' GROUP BY ' . implode(',', $groupByClause);
@@ -375,7 +375,7 @@ GROUP BY ccg.id";
       return FALSE;
     }
     $result = CRM_Core_DAO::executeQuery($query);
-    
+
     if ($result->N > 1) {
       if (count(array_unique($gts, SORT_REGULAR)) > 1) {
         return TRUE;
@@ -386,7 +386,7 @@ GROUP BY ccg.id";
         while ($result->fetch()) {
           if (!in_array($result->grant_type_id, $grantTypes)) {
             $ignoreFlag = FALSE;
-            break;          
+            break;
           }
         }
       }
@@ -399,15 +399,15 @@ GROUP BY ccg.id";
       if ((!empty($contactTypes) && !in_array($result->contact_type, $contactTypes))
         || (!empty($grantTypes) && (!in_array($result->grant_type_id, $grantTypes) || (!empty($commonGrantType) && !in_array($result->grant_type_id, $commonGrantType)))))
       {
-        return TRUE;      
-      } 
+        return TRUE;
+      }
     }
     return FALSE;
   }
 
   static function getGrantFields() {
     $exportableFields = self::exportableFields('Grant');
-    
+
     $skipFields = array('grant_id', 'grant_contact_id');
     foreach ($skipFields as $field) {
       if (isset($exportableFields[$field])) {
@@ -430,11 +430,6 @@ GROUP BY ccg.id";
       'where' => 'civicrm_grant.amount_requested',
       'data_type' => CRM_Utils_Type::T_FLOAT,
     ),
-    'grant_due_date' => array(
-      'title' => ts('Grant Report Due Date'),
-      'name' => 'grant_due_date',
-      'data_type' => CRM_Utils_Type::T_DATE,
-    ),
     'grant_note' => array(
       'title' => ts('Grant Note'),
       'name' => 'grant_note',
@@ -449,11 +444,11 @@ GROUP BY ccg.id";
   );
   return $fields;
   }
-  
+
   /**
    * Function to check if related Grant extension is enabled/disabled
    *
-   * return array of enabled extensions 
+   * return array of enabled extensions
    */
   static function checkRelatedExtensions() {
     $enableDisable = NULL;
