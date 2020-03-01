@@ -100,9 +100,11 @@ class CRM_BUGP_BAO_Bugp extends CRM_Core_DAO {
   SELECT  contact.id as contactId, $compTable.id as componentId, $selectClause
     FROM  $compTable as $compTable $fromClause
    WHERE  $whereClause
-Group By  componentId";
+   GROUP BY  componentId";
 
+      CRM_Core_DAO::disableFullGroupByMode();
       $contact = CRM_Core_DAO::executeQuery($query);
+      CRM_Core_DAO::reenableFullGroupByMode();
       while ($contact->fetch()) {
         $contactDetails[$contact->componentId]['contact_id'] = $contact->contactId;
         foreach ($returnProperties as $property => $ignore) {
@@ -134,7 +136,7 @@ Group By  componentId";
   static function setProfileDefaults($contactId, &$fields, &$defaults, $grantId) {
     
     //get the contact details
-    list($contactDetails, $options) = CRM_Contact_BAO_Contact::getHierContactDetails($contactId, $fields);
+    $contactDetails = CRM_Contact_BAO_Contact::getHierContactDetails($contactId, $fields);
     $details = CRM_Utils_Array::value($contactId, $contactDetails);
     $multipleFields = array('website' => 'url');
 
@@ -180,57 +182,7 @@ Group By  componentId";
           //fix for custom fields
           $customFields = CRM_Core_BAO_CustomField::getFields(CRM_Utils_Array::value('contact_type', $details));
 
-          switch ($customFields[$customFieldId]['html_type']) {
-          case 'Multi-Select State/Province':
-          case 'Multi-Select Country':
-          case 'AdvMulti-Select':
-          case 'Multi-Select':
-            $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
-            foreach ($v as $item) {
-              if ($item) {
-                $defaults[$fldName][$item] = $item;
-              }
-            }
-            break;
-
-          case 'CheckBox':
-            $v = explode(CRM_Core_DAO::VALUE_SEPARATOR, $details[$name]);
-            foreach ($v as $item) {
-              if ($item) {
-                $defaults[$fldName][$item] = 1;
-                // seems like we need this for QF style checkboxes in profile where its multiindexed
-                // CRM-2969
-                $defaults["{$fldName}[{$item}]"] = 1;
-              }
-            }
-            break;
-
-          case 'Select Date':
-            // CRM-6681, set defult values according to date and time format (if any).
-            $dateFormat = NULL;
-            if (!empty($customFields[$customFieldId]['date_format'])) {
-              $dateFormat = $customFields[$customFieldId]['date_format'];
-            }
-
-            if (empty($customFields[$customFieldId]['time_format'])) {
-              list($defaults[$fldName]) = CRM_Utils_Date::setDateDefaults($details[$name], NULL,
-                $dateFormat
-              );
-            }
-            else {
-              $timeElement = $fldName . '_time';
-              if (substr($fldName, -1) == ']') {
-                $timeElement = substr($fldName, 0, -1) . '_time]';
-              }
-              list($defaults[$fldName], $defaults[$timeElement]) = CRM_Utils_Date::setDateDefaults($details[$name],
-                NULL, $dateFormat, $customFields[$customFieldId]['time_format']);
-            }
-            break;
-
-          default:
-            $defaults[$fldName] = $details[$name];
-            break;
-          }
+          $defaults[$fldName] = CRM_Core_BAO_UFGroup::reformatProfileDefaults($customFields[$customFieldId], $details[$name]);
         }
         else {
           $defaults[$fldName] = $details[$name];
@@ -358,9 +310,11 @@ GROUP BY ccg.id";
     if (!empty($grantTypes)) {
       $groupByClause[] = 'grant_type_id';
     }
+    CRM_Core_DAO::disableFullGroupByMode();
     $dao = CRM_Core_DAO::executeQuery("SELECT id, GROUP_CONCAT(field_type) field_type FROM civicrm_uf_field WHERE uf_group_id = {$profileId} 
       AND field_type IN ('Individual', 'Organization', 'Household') AND is_active = 1");
-    
+    CRM_Core_DAO::reenableFullGroupByMode();
+ 
     $contactTypes = array();
     if ($dao->fetch()) {
       $groupByClause[] = 'contact_type';
@@ -374,7 +328,9 @@ GROUP BY ccg.id";
     else {
       return FALSE;
     }
+    CRM_Core_DAO::disableFullGroupByMode();
     $result = CRM_Core_DAO::executeQuery($query);
+    CRM_Core_DAO::reenableFullGroupByMode();
     
     if ($result->N > 1) {
       if (count(array_unique($gts, SORT_REGULAR)) > 1) {

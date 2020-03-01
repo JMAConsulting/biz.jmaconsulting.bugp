@@ -86,11 +86,11 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
     if (!$ufGroupId) {
       CRM_Core_Error::fatal('ufGroupId is missing');
     }
-    $this->_title = ts('Batch Update for Grant(s)') . ' - ' . CRM_Core_BAO_UFGroup::getTitle($ufGroupId);
+    $this->_title = ts('Batch Update for Grant(s)') . ' - ' . CRM_BUGP_BAO_UFGroup::getTitle($ufGroupId);
     CRM_Utils_System::setTitle($this->_title);
     
     $this->_fields = array();
-    $this->_fields = CRM_Core_BAO_UFGroup::getFields($ufGroupId, FALSE, CRM_Core_Action::VIEW);
+    $this->_fields = CRM_BUGP_BAO_UFGroup::getFields($ufGroupId, FALSE, CRM_Core_Action::VIEW);
 
     // remove file type field and then limit fields
     $suppressFields = FALSE;
@@ -131,12 +131,12 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
           if (!empty($entityColumnValue[$typeId]) || 
             CRM_Utils_System::isNull(CRM_Utils_Array::value($typeId, $entityColumnValue))
           ) {
-            CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
+            CRM_BUGP_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
           }
         }
         else {
           // handle non custom fields
-          CRM_Core_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
+          CRM_BUGP_BAO_UFGroup::buildProfile($this, $field, NULL, $grantId);
           
           if (in_array($name, array(
             'amount_total', 'grant_amount_requested', 'amount_granted'))) {
@@ -171,7 +171,7 @@ class CRM_Grant_Form_Task_Batch extends CRM_Grant_Form_Task {
 
     $defaults = array();
     foreach ($this->_grantIds as $grantId) {
-      CRM_Core_BAO_UFGroup::setProfileDefaults(NULL, $this->_fields, $defaults, FALSE, $grantId, 'Grant');
+      CRM_BUGP_BAO_UFGroup::setProfileDefaults(NULL, $this->_fields, $defaults, FALSE, $grantId, 'Grant');
       CRM_BUGP_BAO_Bugp::setProfileDefaults($this->_contactDetails[$grantId]['contact_id'], $this->_fields, $defaults, $grantId);
       if (array_key_exists('grant_note', $this->_fields)) {
         $note = CRM_Core_BAO_Note::getNote($grantId, 'civicrm_grant');
