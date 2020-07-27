@@ -89,10 +89,14 @@ function bugp_civicrm_buildForm($formName, &$form) {
     if (!$form->elementExists('field_name')) {
       return NULL;
     }
-    
     $elements = & $form->getElement('field_name');
-    
-    if ($elements && !array_key_exists('Grant', $elements->_options[0])) {
+    if ($elements && array_key_exists('Grant', $elements->_options[0]) === FALSE) {
+      $grantFields = CRM_BUGP_BAO_Bugp::exportableFields();
+      $grantMapperFields = [];
+      foreach ($grantFields as $field_name => $field) {
+        $grantMapperFields[$field_name] = $field['title'];
+      }
+      $form->_mapperFields['Grant'] = $grantMapperFields;
       $elements->_options[0]['Grant'] = 'Grant';
       $elements->_options[1]['Grant'] = $form->_mapperFields['Grant'];
           
@@ -174,4 +178,15 @@ function bugp_addRemoveMenu($enable) {
   CRM_Core_BAO_Setting::setItem($params['enableComponents'],
     CRM_Core_BAO_Setting::SYSTEM_PREFERENCES_NAME,'enable_components');
   
+}
+
+function bugp_civicrm_alterUFFields(&$fields) {
+  $fields['Grant'] = CRM_BUGP_BAO_Bugp::exportableFields();
+}
+
+function bugp_civicrm_post($entity, $op, $id, $object) {
+  if ($entity === 'UFField' && in_array($op, ['edit', 'create'])) {
+    $fieldsType = CRM_BUGP_BAO_UFGroup::calculateGroupType($object->uf_group_id, TRUE);
+    CRM_BUGP_BAO_UFGroup::updateGroupTypes($object->uf_group_id, $fieldsType);
+  }
 }
